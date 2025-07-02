@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { emailService } from '../services/universalEmail';
+import { emailService } from '../services/email';
 import { getServiceConfiguration } from '../config/services';
 import { sql } from 'drizzle-orm';
 

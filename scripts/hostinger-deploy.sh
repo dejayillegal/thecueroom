@@ -64,7 +64,7 @@ SESSION_SECRET=TheCueRoom2024UltraSecureSessionKey64CharactersLongForMaximumSecu
 # Method 1: Gmail SMTP (Free - Recommended)
 GMAIL_USER=your-gmail@gmail.com
 GMAIL_APP_PASSWORD=your-16-character-app-password
-FROM_EMAIL=noreply@thecueroom.xyz
+FROM_EMAIL=support@thecueroom.xyz
 
 # Method 2: Hostinger Email ($0.99/month)
 # SMTP_HOST=smtp.hostinger.com
@@ -99,7 +99,7 @@ export const emailConfig = {
   adminEmail: 'admin@thecueroom.xyz',
   supportEmail: 'support@thecueroom.xyz',
   contactEmail: 'contact@thecueroom.xyz',
-  noreplyEmail: 'noreply@thecueroom.xyz',
+  noreplyEmail: 'support@thecueroom.xyz',
 };
 EOF
 

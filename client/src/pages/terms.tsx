@@ -232,7 +232,7 @@ export default function Terms() {
                 If you have questions about these Terms of Service, please contact us:
               </p>
               <div className="space-y-2">
-                <p className="font-medium">legal@thecueroom.com</p>
+                <p className="font-medium">legal@thecueroom.xyz</p>
                 <p className="text-sm text-muted-foreground">
                   We'll respond to legal inquiries within 5 business days.
                 </p>

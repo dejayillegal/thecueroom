@@ -112,7 +112,7 @@ export function getServiceConfiguration(): ServiceConfig {
     email: {
       provider: emailProvider,
       apiKey: getEmailApiKey(emailProvider),
-      from: process.env.EMAIL_FROM || 'noreply@thecueroom.com',
+      from: process.env.EMAIL_FROM || 'support@thecueroom.xyz',
       fromName: process.env.EMAIL_FROM_NAME || 'TheCueRoom',
       retryAttempts: 3,
       timeout: 30000
@@ -141,11 +141,12 @@ export function getServiceConfiguration(): ServiceConfig {
 }
 
 function detectEmailProvider(): string {
-  if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) return 'sendgrid';
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) return 'smtp';
   if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) return 'mailgun';
   if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')) return 'resend';
   if (process.env.AWS_SES_ACCESS_KEY && process.env.AWS_SES_SECRET_KEY) return 'ses';
-  return 'sendgrid'; // Default with validation
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) return 'gmail';
+  return 'smtp';
 }
 
 function detectAiProvider(): string {
@@ -164,7 +165,6 @@ function detectStorageProvider(): string {
 
 function getEmailApiKey(provider: string): string {
   switch (provider) {
-    case 'sendgrid': return process.env.SENDGRID_API_KEY || '';
     case 'mailgun': return process.env.MAILGUN_API_KEY || '';
     case 'resend': return process.env.RESEND_API_KEY || '';
     case 'ses': return process.env.AWS_SES_ACCESS_KEY || '';
@@ -242,9 +242,7 @@ export function validateServiceConfiguration(): { valid: boolean; errors: string
   }
 
   // Email service validation
-  if (config.email.provider === 'sendgrid' && !config.email.apiKey) {
-    errors.push('SENDGRID_API_KEY is required for SendGrid email service');
-  } else if (config.email.provider === 'mailgun' && (!config.email.apiKey || !process.env.MAILGUN_DOMAIN)) {
+  if (config.email.provider === 'mailgun' && (!config.email.apiKey || !process.env.MAILGUN_DOMAIN)) {
     errors.push('MAILGUN_API_KEY and MAILGUN_DOMAIN are required for Mailgun email service');
   }
 
@@ -265,7 +263,7 @@ export function validateServiceConfiguration(): { valid: boolean; errors: string
       warnings.push('SSL should be enabled for production database connections');
     }
     
-    if (config.email.provider === 'sendgrid' && !process.env.EMAIL_FROM?.includes('@')) {
+    if (!process.env.EMAIL_FROM?.includes('@')) {
       errors.push('Valid sender email address required for production');
     }
   }

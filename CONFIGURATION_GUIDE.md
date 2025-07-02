@@ -101,16 +101,19 @@ OPENAI_API_KEY=sk-your-openai-key-here
 OPENAI_MODEL=gpt-4
 OPENAI_MAX_TOKENS=1000
 
-# Email service configuration
-SENDGRID_API_KEY=SG.your-sendgrid-key
-FROM_EMAIL=noreply@thecueroom.com
+# Email service configuration (Brevo SMTP example)
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
+FROM_EMAIL=support@thecueroom.xyz
 FROM_NAME=TheCueRoom
 
-# Alternative email providers
-SMTP_HOST=smtp.gmail.com
+# Alternative email providers (e.g. Brevo)
+SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-smtp-password
 ```
 
 ### Feature Flags
@@ -275,24 +278,14 @@ MODERATION_ACTIONS=flag,block,notify
 
 ### Email Service Configuration
 
-#### SendGrid
+#### SMTP (Brevo or other providers)
 
 ```bash
-SENDGRID_API_KEY=SG.your-key-here
-SENDGRID_SENDER_EMAIL=noreply@thecueroom.com
-SENDGRID_SENDER_NAME=TheCueRoom
-SENDGRID_TEMPLATE_ID_WELCOME=d-your-template-id
-SENDGRID_TEMPLATE_ID_VERIFICATION=d-your-template-id
-```
-
-#### SMTP (Gmail, Outlook, etc.)
-
-```bash
-SMTP_HOST=smtp.gmail.com
+SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
 SMTP_SECURE=false  # true for 465, false for other ports
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-smtp-password
 
 # Email templates
 EMAIL_TEMPLATE_PATH=./server/templates/email
@@ -544,7 +537,7 @@ CPU_USAGE_THRESHOLD=80        # 80%
 # Error tracking
 ERROR_TRACKING_ENABLED=true
 ERROR_REPORTING_ENABLED=true
-ERROR_NOTIFICATION_EMAIL=admin@thecueroom.com
+ERROR_NOTIFICATION_EMAIL=admin@thecueroom.xyz
 ```
 
 ### Backup and Recovery

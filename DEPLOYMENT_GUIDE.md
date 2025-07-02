@@ -8,7 +8,7 @@ This guide provides step-by-step instructions for deploying TheCueRoom in variou
 
 ### Required Services
 - [ ] PostgreSQL database (Neon recommended)
-- [ ] Email service (SendGrid recommended)
+- [ ] Email service (SMTP/Brevo recommended)
 - [ ] Domain name (optional)
 - [ ] SSL certificate (automatically handled by most platforms)
 
@@ -16,7 +16,11 @@ This guide provides step-by-step instructions for deploying TheCueRoom in variou
 ```env
 DATABASE_URL=postgresql://username:password@host:port/database
 SESSION_SECRET=your-super-secret-session-key-here
-SENDGRID_API_KEY=your-sendgrid-api-key
+# Brevo SMTP credentials
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
 OPENAI_API_KEY=your-openai-api-key (optional)
 NODE_ENV=production
 ```
@@ -39,7 +43,11 @@ Create `.env` file:
 ```env
 DATABASE_URL=postgresql://localhost:5432/thecueroom
 SESSION_SECRET=dev-secret-key-change-in-production
-SENDGRID_API_KEY=your-sendgrid-api-key
+# Brevo SMTP credentials
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
 NODE_ENV=development
 ```
 
@@ -72,7 +80,10 @@ In Replit Secrets tab, add:
 ```
 DATABASE_URL=your-neon-database-url
 SESSION_SECRET=generate-strong-secret-key
-SENDGRID_API_KEY=your-sendgrid-api-key
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
 OPENAI_API_KEY=your-openai-api-key
 ```
 
@@ -113,12 +124,18 @@ sudo -u postgres psql
 
 ## 📧 Email Service Configuration
 
-### SendGrid Setup (Recommended)
-1. Visit [sendgrid.com](https://sendgrid.com)
-2. Create account
-3. Generate API key in Settings > API Keys
-4. Add to `SENDGRID_API_KEY` environment variable
-5. Verify sender email in SendGrid dashboard
+### Brevo SMTP Setup
+1. Visit [brevo.com](https://www.brevo.com)
+2. Create an account
+3. Obtain your SMTP credentials
+4. Add the following variables to your environment:
+   ```env
+   SMTP_HOST=smtp-relay.brevo.com
+   SMTP_PORT=587
+   SMTP_USER=9108c5001@smtp-brevo.com
+   SMTP_PASS=your-brevo-password
+   FROM_EMAIL=support@thecueroom.xyz
+   ```
 
 ### Email Templates
 The platform includes built-in HTML email templates for:
@@ -191,8 +208,7 @@ curl http://your-domain/api/health
 ```
 
 ### 2. Admin Account Setup
-Default admin accounts are pre-configured:
-- Email: `admin@thecueroom.com`
+- Email: `admin@thecueroom.xyz`
 - Password: `admin123`
 
 **Important**: Change admin passwords immediately after deployment.
@@ -247,10 +263,10 @@ psql $DATABASE_URL -c "SELECT 1"
 ```
 
 #### Email Delivery Issues
-- Verify SendGrid API key
-- Check sender email verification
+- Verify SMTP credentials
+- Check sender email configuration
 - Review spam folder
-- Monitor SendGrid activity dashboard
+- Monitor Brevo dashboard
 
 #### Session Issues
 - Verify SESSION_SECRET is set
@@ -316,9 +332,8 @@ npm restart
 
 ## 📞 Support & Contact
 
-For deployment support:
 - Technical Issues: Create GitHub issue
-- Platform Access: admin@thecueroom.com
+- Platform Access: admin@thecueroom.xyz
 - Emergency: Direct admin contact
 
 **Remember**: This platform is exclusively for verified underground electronic music artists and DJs in India.

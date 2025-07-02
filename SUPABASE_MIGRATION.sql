@@ -145,8 +145,8 @@ CREATE TRIGGER update_support_tickets_updated_at BEFORE UPDATE ON support_ticket
 
 -- Insert sample data for testing
 INSERT INTO users (id, email, username, password, "firstName", "lastName", "stageName", "isAdmin", "isVerified", "emailVerified") VALUES
-('admin_001', 'admin@thecueroom.com', 'admin', '$2b$10$YourHashedPasswordHere', 'Admin', 'User', 'TheCueRoom Admin', true, true, true),
-('user_001', 'test@example.com', 'testuser', '$2b$10$YourHashedPasswordHere', 'Test', 'User', 'Test DJ', false, true, true);
+('admin_001', 'admin@thecueroom.xyz', 'admin', '$2b$10$YourHashedPasswordHere', 'Admin', 'User', 'TheCueRoom Admin', true, true, true),
+('user_001', 'user@thecueroom.xyz', 'testuser', '$2b$10$YourHashedPasswordHere', 'Test', 'User', 'Test DJ', false, true, true);
 
 INSERT INTO playlists (title, description, "spotifyUrl", genre, duration, "trackCount") VALUES
 ('Underground Techno Mix Vol. 1', 'A journey through the deepest underground techno tracks', 'https://open.spotify.com/playlist/example1', 'Techno', 3600, 24),

@@ -269,10 +269,10 @@ TheCueRoom reserves the right to:
 
 For questions about this Acceptable Use Policy:
 
-**Policy Questions:** policy@thecueroom.com  
-**Violation Reports:** Report through platform tools or support@thecueroom.com  
-**Appeals:** appeals@thecueroom.com  
-**General Support:** support@thecueroom.com  
+**Policy Questions:** policy@thecueroom.xyz
+**Violation Reports:** Report through platform tools or support@thecueroom.xyz
+**Appeals:** appeals@thecueroom.xyz
+**General Support:** support@thecueroom.xyz
 
 ## 14. Acknowledgment
 

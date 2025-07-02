@@ -7,6 +7,7 @@ const logger = createLogger('EmailService');
 class EmailService {
   private transporter: nodemailer.Transporter | null = null;
   private isConfigured = false;
+  private provider = 'none';
 
   constructor() {
     this.initialize();
@@ -14,9 +15,33 @@ class EmailService {
 
   private async initialize() {
     try {
+      // Generic SMTP configuration (e.g. Brevo)
+      if (
+        process.env.SMTP_HOST &&
+        process.env.SMTP_PORT &&
+        process.env.SMTP_USER &&
+        process.env.SMTP_PASS
+      ) {
+        this.transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT),
+          secure:
+            process.env.SMTP_SECURE === 'true' ||
+            Number(process.env.SMTP_PORT) === 465,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        });
+        this.isConfigured = true;
+        this.provider = 'smtp';
+        logger.info('Email service configured with generic SMTP');
+        return;
+      }
+
       // Gmail SMTP configuration (free option)
       if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
             user: process.env.GMAIL_USER,
@@ -24,13 +49,14 @@ class EmailService {
           }
         });
         this.isConfigured = true;
+        this.provider = 'gmail';
         logger.info('Email service configured with Gmail SMTP');
         return;
       }
 
       // Outlook SMTP configuration (free alternative)
       if (process.env.OUTLOOK_USER && process.env.OUTLOOK_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           service: 'hotmail',
           auth: {
             user: process.env.OUTLOOK_USER,
@@ -38,13 +64,14 @@ class EmailService {
           }
         });
         this.isConfigured = true;
+        this.provider = 'outlook';
         logger.info('Email service configured with Outlook SMTP');
         return;
       }
 
       // Zoho SMTP configuration (free alternative)
       if (process.env.ZOHO_USER && process.env.ZOHO_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           host: 'smtp.zoho.com',
           port: 587,
           secure: false,
@@ -54,18 +81,20 @@ class EmailService {
           }
         });
         this.isConfigured = true;
+        this.provider = 'zoho';
         logger.info('Email service configured with Zoho SMTP');
         return;
       }
 
       // Development mode fallback (console logging)
       if (process.env.NODE_ENV === 'development') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           streamTransport: true,
           newline: 'unix',
           buffer: true
         });
         this.isConfigured = true;
+        this.provider = 'dev';
         logger.info('Email service in development mode (console output)');
         return;
       }
@@ -84,7 +113,7 @@ class EmailService {
 
     try {
       const mailOptions = {
-        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'noreply@thecueroom.xyz',
+        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'support@thecueroom.xyz',
         to: email,
         subject: 'Welcome to TheCueRoom - Verify Your Email',
         html: this.getVerificationEmailTemplate(firstName, verificationLink)
@@ -112,7 +141,7 @@ class EmailService {
 
     try {
       const mailOptions = {
-        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'noreply@thecueroom.xyz',
+        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'support@thecueroom.xyz',
         to: email,
         subject: 'TheCueRoom - Password Reset',
         html: this.getPasswordResetEmailTemplate(firstName, tempPassword)
@@ -140,7 +169,7 @@ class EmailService {
 
     try {
       const mailOptions = {
-        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'noreply@thecueroom.xyz',
+        from: process.env.FROM_EMAIL || process.env.GMAIL_USER || 'support@thecueroom.xyz',
         to: email,
         subject: 'Welcome to TheCueRoom - Your Account is Active!',
         html: this.getWelcomeEmailTemplate(firstName)
@@ -334,6 +363,36 @@ class EmailService {
       </body>
       </html>
     `;
+  }
+
+  async testConnection(): Promise<{ success: boolean; provider: string; error?: string }> {
+    if (!this.isConfigured || !this.transporter) {
+      return { success: false, provider: this.provider, error: 'not configured' };
+    }
+
+    if (process.env.NODE_ENV === 'development' && process.env.TEST_EMAIL) {
+      try {
+        await this.transporter.sendMail({
+          from: process.env.FROM_EMAIL || 'support@thecueroom.xyz',
+          to: process.env.TEST_EMAIL,
+          subject: 'Email service test',
+          text: 'This is a test email.'
+        });
+        return { success: true, provider: this.provider };
+      } catch (err: any) {
+        return { success: false, provider: this.provider, error: err.message };
+      }
+    }
+
+    return { success: true, provider: this.provider };
+  }
+
+  getProviderInfo() {
+    return {
+      provider: this.provider,
+      configured: this.isConfigured,
+      from: process.env.FROM_EMAIL || 'support@thecueroom.xyz'
+    };
   }
 
   isServiceConfigured(): boolean {

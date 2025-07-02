@@ -412,12 +412,12 @@ export const articleAnalyticsRelations = relations(articleAnalytics, ({ one }) =
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertPostSchema = createInsertSchema(posts).omit({
   id: true,
@@ -425,55 +425,55 @@ export const insertPostSchema = createInsertSchema(posts).omit({
   commentsCount: true,
   isModerated: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertCommentSchema = createInsertSchema(comments).omit({
   id: true,
   isModerated: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertPostReactionSchema = createInsertSchema(postReactions).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertMemeSchema = createInsertSchema(memes).omit({
   id: true,
   likesCount: true,
   isNSFW: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertGigSchema = createInsertSchema(gigs).omit({
   id: true,
   isActive: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertPlaylistSchema = createInsertSchema(playlists).omit({
   id: true,
   isActive: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertNewsArticleSchema = createInsertSchema(newsArticles).omit({
   id: true,
   isSpotlight: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertMusicProfileSchema = createInsertSchema(userMusicProfiles).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
   id: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -504,20 +504,20 @@ export const insertTrackSchema = createInsertSchema(tracks).omit({
   playsCount: true,
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertCuratedPlaylistSchema = createInsertSchema(curatedPlaylists).omit({
   id: true,
   likesCount: true,
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertPlatformIntegrationSchema = createInsertSchema(platformIntegrations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 // Extended Types with Relations
 export type PostWithUser = Post & { user: User };
@@ -540,24 +540,24 @@ export type SupportTicket = typeof supportTickets.$inferSelect;
 export const insertUserLogSchema = createInsertSchema(userLogs).omit({
   id: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions).omit({
   id: true,
   subscribedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   resolvedAt: true,
-});
+} as const satisfies Record<string, true>);
 
 export const insertArticleAnalyticsSchema = createInsertSchema(articleAnalytics).omit({
   id: true,
   createdAt: true,
-});
+} as const satisfies Record<string, true>);
 
 // New types
 export type InsertUserLog = z.infer<typeof insertUserLogSchema>;

@@ -169,9 +169,12 @@ SESSION_SECRET=your-super-secret-session-key-here
 # OpenAI for AI features
 OPENAI_API_KEY=sk-your-openai-key-here
 
-# SendGrid for email services
-SENDGRID_API_KEY=SG.your-sendgrid-key-here
-FROM_EMAIL=noreply@thecueroom.com
+# SMTP email service (e.g. Brevo)
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
+FROM_EMAIL=support@thecueroom.xyz
 
 # ===========================================
 # FEATURE FLAGS
@@ -254,7 +257,7 @@ npm run db:seed
 ```
 
 This creates:
-- Admin user (admin@thecueroom.com / admin123)
+- Admin user (admin@thecueroom.xyz / admin123)
 - Sample posts and comments
 - Example gigs and events
 - Test user accounts
@@ -323,16 +326,18 @@ curl -X GET http://localhost:5000/api/login
    curl -X POST http://localhost:5000/api/test-openai
    ```
 
-### SendGrid Setup (Optional)
+### Brevo SMTP Setup (Recommended)
 
-1. **Get API Key:**
-   - Visit https://sendgrid.com/
-   - Create account and get API key
-   - Add to `.env`: `SENDGRID_API_KEY=SG.your-key`
-
-2. **Configure sender:**
+1. **Get SMTP Credentials:**
+   - Visit https://www.brevo.com/
+   - Create an account and obtain your SMTP username and password
+   - Add to `.env`:
    ```bash
-   FROM_EMAIL=noreply@yourdomain.com
+   SMTP_HOST=smtp-relay.brevo.com
+   SMTP_PORT=587
+   SMTP_USER=9108c5001@smtp-brevo.com
+   SMTP_PASS=your-brevo-password
+   FROM_EMAIL=support@thecueroom.xyz
    ```
 
 3. **Test email:**
@@ -420,7 +425,10 @@ SESSION_SECRET=your-production-secret-key
 
 # Configure external services
 OPENAI_API_KEY=your-production-openai-key
-SENDGRID_API_KEY=your-production-sendgrid-key
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
 ```
 
 ### Deployment Commands

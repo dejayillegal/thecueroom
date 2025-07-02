@@ -11,7 +11,7 @@ import { moderationService } from "./services/moderationService";
 import { avatarService } from "./services/avatarService";
 import { musicPlatformService } from "./services/musicPlatformService";
 import { loggingService } from "./services/loggingService";
-import { emailService } from "./services/emailService";
+import { emailService } from "./services/email";
 import { bandcampService } from "./services/bandcampService";
 import { spotifyService } from "./services/spotifyService";
 import { memeService } from "./services/memeService";

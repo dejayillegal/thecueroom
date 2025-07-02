@@ -192,7 +192,7 @@ TheCueRoom is an invite-only digital community platform exclusively for techno a
 
 For questions about these Terms of Service:
 
-**Email:** legal@thecueroom.com  
+**Email:** legal@thecueroom.xyz
 **Platform:** Through admin support ticket system  
 **Address:** Bangalore, Karnataka, India  
 

@@ -7,7 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import connectPg from "connect-pg-simple";
-import { emailService } from "./services/emailService";
+import { emailService } from "./services/email";
 import { loggingService } from "./services/loggingService";
 
 declare global {

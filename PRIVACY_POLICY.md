@@ -227,12 +227,12 @@ TheCueRoom does not sell, rent, or trade your personal information to third part
 ## 15. Contact Information
 
 ### 15.1 Privacy Team
-- **Email:** privacy@thecueroom.com
+- **Email:** privacy@thecueroom.xyz
 - **Support:** Submit privacy requests through platform support system
 - **Response Time:** Initial response within 48 hours
 
 ### 15.2 Data Protection Officer
-- **Email:** dpo@thecueroom.com
+- **Email:** dpo@thecueroom.xyz
 - **Responsibilities:** GDPR compliance, privacy impact assessments
 - **Availability:** Business hours (IST)
 
@@ -257,4 +257,4 @@ TheCueRoom does not sell, rent, or trade your personal information to third part
 
 **This Privacy Policy was last updated on June 29, 2025. Please review periodically for updates.**
 
-**For questions or concerns about your privacy, contact us at privacy@thecueroom.com**
+**For questions or concerns about your privacy, contact us at privacy@thecueroom.xyz**

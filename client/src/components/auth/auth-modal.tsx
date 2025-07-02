@@ -410,7 +410,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     onError: (error: Error) => {
       toast({
         title: "Request Failed",
-        description: error.message || "Failed to contact admin support. Please try again or email admin@thecueroom.com directly.",
+        description: error.message || "Failed to contact admin support. Please try again or email admin@thecueroom.xyz directly.",
         variant: "destructive",
       });
     },
@@ -588,7 +588,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="artist@thecueroom.com" 
+                            placeholder="artist@thecueroom.xyz"
                             {...field} 
                             autoFocus
                           />
@@ -640,7 +640,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="artist@thecueroom.com" 
+                            placeholder="artist@thecueroom.xyz"
                             {...field} 
                             autoFocus
                           />
@@ -781,7 +781,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="artist@thecueroom.com" 
+                            placeholder="artist@thecueroom.xyz"
                             {...field} 
                             autoFocus
                           />
@@ -870,7 +870,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="artist@thecueroom.com" {...field} />
+                      <Input placeholder="artist@thecueroom.xyz" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

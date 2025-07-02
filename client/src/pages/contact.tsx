@@ -170,11 +170,11 @@ export default function Contact() {
                     For general inquiries, partnership opportunities, or technical support:
                   </p>
                   <div className="space-y-2">
-                    <p className="font-medium">hello@thecueroom.com</p>
+                    <p className="font-medium">hello@thecueroom.xyz</p>
                     <p className="text-sm text-muted-foreground">General inquiries</p>
                   </div>
                   <div className="space-y-2 mt-4">
-                    <p className="font-medium">artists@thecueroom.com</p>
+                    <p className="font-medium">artists@thecueroom.xyz</p>
                     <p className="text-sm text-muted-foreground">Artist applications</p>
                   </div>
                 </CardContent>

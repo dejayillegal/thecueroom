@@ -1,15 +1,15 @@
-import { emailService } from './services/emailService';
+import { emailService } from './services/email';
 
 async function testEmailVerification() {
   console.log('Testing Email Verification System...\n');
   
-  // Test 1: Check SendGrid API Key
-  console.log('1. Checking SendGrid API Key...');
-  if (!process.env.SENDGRID_API_KEY) {
-    console.error('❌ SENDGRID_API_KEY is not set');
+  // Test 1: Check SMTP configuration
+  console.log('1. Checking SMTP configuration...');
+  if (!process.env.SMTP_HOST || !process.env.SMTP_PASS) {
+    console.error('❌ SMTP credentials are not set');
     return;
   }
-  console.log('✓ SendGrid API Key is configured');
+  console.log('✓ SMTP credentials are configured');
   
   // Test 2: Send Test Email
   console.log('\n2. Testing email sending capability...');

@@ -135,7 +135,11 @@ SESSION_SECRET=your-session-secret
 
 # External Services (Optional)
 OPENAI_API_KEY=your-openai-key
-SENDGRID_API_KEY=your-sendgrid-key
+# Generic SMTP (e.g. Brevo)
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=9108c5001@smtp-brevo.com
+SMTP_PASS=your-brevo-password
 ```
 
 ## 📊 API Endpoints

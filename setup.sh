@@ -43,11 +43,11 @@ if [ ! -f ".env" ]; then
     echo "⚠️  IMPORTANT: You must configure your .env file with:"
     echo "   - DATABASE_URL (PostgreSQL connection string)"
     echo "   - SESSION_SECRET (64 random characters)"
-    echo "   - SENDGRID_API_KEY (for email service)"
+    echo "   - SMTP credentials (for email service)"
     echo ""
     echo "   Example setup:"
     echo "   1. Get free PostgreSQL database from neon.tech"
-    echo "   2. Get free SendGrid account for email service"
+    echo "   2. Get free Brevo account for email service"
     echo "   3. Generate session secret with:"
     echo "      node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\""
     echo ""
@@ -87,9 +87,9 @@ fi
 
 # Check email configuration
 echo "📧 Checking email configuration..."
-if grep -q "SENDGRID_API_KEY=your-sendgrid" .env; then
-    echo "⚠️  SendGrid API key not configured"
-    echo "   Please set SENDGRID_API_KEY in .env file"
+if grep -q "SMTP_PASS=your-brevo-password" .env; then
+    echo "⚠️  SMTP credentials not configured"
+    echo "   Please set SMTP_* variables in .env file"
 else
     echo "✅ Email service configured"
 fi
@@ -116,7 +116,7 @@ else
     echo "❌ Security: Session secret not generated"
 fi
 
-if ! grep -q "SENDGRID_API_KEY=your-sendgrid" .env; then
+if ! grep -q "SMTP_PASS=your-brevo-password" .env; then
     echo "✅ Email: Configured"
     ((CONFIGURED++))
 else
@@ -136,7 +136,7 @@ if [ $CONFIGURED -eq $TOTAL ]; then
     echo "The platform will be available at: http://localhost:5000"
     echo ""
     echo "Default admin login:"
-    echo "   Email: admin@thecueroom.com"
+    echo "   Email: admin@thecueroom.xyz"
     echo "   Password: admin123"
     echo "   (Please change this password after first login)"
     echo ""
