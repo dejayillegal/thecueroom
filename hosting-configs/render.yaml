@@ -1,0 +1,77 @@
+# Render Configuration for TheCueRoom Full-Stack Deployment
+services:
+  # Web Service (Backend)
+  - type: web
+    name: thecueroom-api
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thecueroom-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@thecueroom.xyz
+      - key: SUPPORT_EMAIL
+        value: support@thecueroom.xyz
+      - key: FROM_EMAIL
+        value: noreply@thecueroom.xyz
+    domains:
+      - api.thecueroom.xyz
+    healthCheckPath: /api/health
+
+  # Static Site (Frontend)
+  - type: static
+    name: thecueroom-frontend
+    buildCommand: npm install && npm run build && node scripts/build-static.js
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://api.thecueroom.xyz
+      - key: VITE_DOMAIN
+        value: thecueroom.xyz
+      - key: VITE_SITE_URL
+        value: https://thecueroom.xyz
+    domains:
+      - thecueroom.xyz
+      - www.thecueroom.xyz
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://api.thecueroom.xyz/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+# Database
+databases:
+  - name: thecueroom-db
+    databaseName: thecueroom
+    user: thecueroom_user
+    plan: free
+
+# Build settings
+buildCommand: |
+  # Install dependencies
+  npm install
+  
+  # Build backend
+  npm run build
+  
+  # Build frontend
+  cd client && npm run build
+  
+  # Generate static pages
+  node ../scripts/build-static.js

@@ -1,0 +1,1 @@
+// Component removed - Spotlight moved to main navigation

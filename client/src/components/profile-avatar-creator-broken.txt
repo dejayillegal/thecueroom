@@ -1,0 +1,2167 @@
+import { useState, useRef, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  RefreshCw, 
+  User,
+  Palette, 
+  Zap, 
+  Download,
+  Check
+} from "lucide-react";
+import { safeCanvas, safeDownload } from "@/lib/safe-dom";
+
+interface AvatarConfig {
+  droidType: string;
+  accessory: string;
+  gadget: string;
+  background: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  size: number;
+  animation: string;
+  animationSpeed: number;
+}
+
+interface AvatarData {
+  imageData: string;
+  config: AvatarConfig;
+}
+
+const DROID_ELEMENTS = {
+  droidTypes: [
+    { id: 'dj', name: 'DJ Robot', description: 'Headphones & turntables' },
+    { id: 'producer', name: 'Producer Robot', description: 'Crown & studio gear' },
+    { id: 'hardcore', name: 'Hardcore Robot', description: 'Goggles & chain' },
+    { id: 'raver', name: 'Raver Robot', description: 'Speaker head & RAVE' },
+    { id: 'turntablist', name: 'Turntablist Robot', description: 'DJ setup & mixing' },
+    { id: 'boombox', name: 'Boombox Robot', description: 'Portable sound system' }
+  ],
+  accessories: [
+    { id: 'none', name: 'Clean', description: 'Minimal look' },
+    { id: 'eyepatch', name: 'Eye Patch', description: 'Pirate vibes' },
+    { id: 'headphones', name: 'Headphones', description: 'Always listening' },
+    { id: 'visor', name: 'LED Visor', description: 'Cyber style' },
+    { id: 'antenna', name: 'Antenna', description: 'Signal receiver' },
+    { id: 'goggles', name: 'Goggles', description: 'Lab protection' }
+  ],
+  gadgets: [
+    { id: 'none', name: 'Empty Hands', description: 'Clean and simple' },
+    { id: 'controller', name: 'DJ Controller', description: 'Mix master' },
+    { id: 'knife', name: 'Knife', description: 'Cutting beats' },
+    { id: 'synthesizer', name: 'Mini Synth', description: 'Sound maker' },
+    { id: 'vinyl', name: 'Vinyl Record', description: 'Classic medium' },
+    { id: 'sampler', name: 'Beat Pad', description: 'Sample trigger' }
+  ],
+  backgrounds: [
+    { id: 'dark', name: 'Dark', color: '#0a0a0a', description: 'Underground' },
+    { id: 'purple', name: 'Purple', color: '#2d1b69', description: 'Techno vibe' },
+    { id: 'blue', name: 'Blue', color: '#1e3a8a', description: 'Deep house' },
+    { id: 'green', name: 'Green', color: '#166534', description: 'Acid' },
+    { id: 'red', name: 'Red', color: '#7f1d1d', description: 'Industrial' },
+    { id: 'gradient', name: 'Gradient', color: 'gradient', description: 'Multi-color' }
+  ],
+  animations: [
+    { id: 'none', name: 'Static', description: 'No animation' },
+    { id: 'pulse', name: 'Pulse', description: 'Rhythmic pulsing' },
+    { id: 'rotate', name: 'Rotate', description: 'Continuous rotation' },
+    { id: 'bounce', name: 'Bounce', description: 'Techno bounce' },
+    { id: 'glow', name: 'Glow', description: 'Pulsing glow effect' },
+    { id: 'wave', name: 'Wave', description: 'Sound wave motion' },
+    { id: 'vibrate', name: 'Vibrate', description: 'High-energy shake' },
+    { id: 'float', name: 'Float', description: 'Gentle floating' }
+  ]
+};
+
+const TECHNO_COLORS = [
+  '#ff0080', '#00ff80', '#8000ff', '#ff8000', '#0080ff',
+  '#ff0040', '#40ff00', '#0040ff', '#ff4000', '#00ffff',
+  '#ff00ff', '#80ff00', '#ff0000', '#00ff00', '#0000ff'
+];
+
+export default function ProfileAvatarCreator({ onAvatarSave }: { onAvatarSave?: (avatarData: AvatarData) => void }) {
+  const [config, setConfig] = useState<AvatarConfig>({
+    droidType: 'dj',
+    accessory: 'none',
+    gadget: 'none',
+    background: 'dark',
+    primaryColor: '#00d9a5',
+    secondaryColor: '#3d3d56',
+    accentColor: '#ffffff',
+    size: 200,
+    animation: 'pulse',
+    animationSpeed: 1
+  });
+  
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
+
+  // Auto-draw when config changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      drawAvatar();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [config]);
+
+  const generateRandomAvatar = () => {
+    setIsGenerating(true);
+    
+    const randomConfig: AvatarConfig = {
+      droidType: DROID_ELEMENTS.droidTypes[Math.floor(Math.random() * DROID_ELEMENTS.droidTypes.length)].id,
+      accessory: DROID_ELEMENTS.accessories[Math.floor(Math.random() * DROID_ELEMENTS.accessories.length)].id,
+      gadget: DROID_ELEMENTS.gadgets[Math.floor(Math.random() * DROID_ELEMENTS.gadgets.length)].id,
+      background: DROID_ELEMENTS.backgrounds[Math.floor(Math.random() * DROID_ELEMENTS.backgrounds.length)].id,
+      primaryColor: TECHNO_COLORS[Math.floor(Math.random() * TECHNO_COLORS.length)],
+      secondaryColor: TECHNO_COLORS[Math.floor(Math.random() * TECHNO_COLORS.length)],
+      accentColor: TECHNO_COLORS[Math.floor(Math.random() * TECHNO_COLORS.length)],
+      animation: DROID_ELEMENTS.animations[Math.floor(Math.random() * DROID_ELEMENTS.animations.length)].id,
+      animationSpeed: 0.5 + Math.random() * 2, // Random speed between 0.5x and 2.5x
+      size: 150
+    };
+    
+    setConfig(randomConfig);
+    setTimeout(() => setIsGenerating(false), 500);
+  };
+
+  const drawIconicDroid = (ctx: CanvasRenderingContext2D, droidType: string, x: number, y: number, size: number) => {
+    // Large scale to make robots fill most of the canvas like your reference images
+    const scale = size * 0.35; // Much larger to fill canvas properly
+    const centerY = y; // Center properly
+    
+    // Colors matching TheCueRoom's theme
+    const robotColor = '#00d9a5'; // Primary green from theme
+    const darkColor = '#0f0f23'; // Background dark from theme
+    const accentColor = '#3d3d56'; // Secondary color from theme
+    
+    // Clear background
+    ctx.fillStyle = darkColor;
+    ctx.fillRect(0, 0, size, size);
+    
+    // Set consistent style
+    ctx.fillStyle = robotColor;
+    ctx.strokeStyle = darkColor;
+    ctx.lineWidth = 8*scale;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    switch (droidType) {
+      case 'dj':
+        // DJ Robot with headphones and turntables (Reference Image 2)
+        
+        // Backward cap with button
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 80*scale, centerY - 120*scale, 160*scale, 40*scale, 20*scale);
+        ctx.fill();
+        
+        // Cap button
+        ctx.beginPath();
+        ctx.arc(x, centerY - 120*scale, 8*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Cap visor
+        ctx.beginPath();
+        ctx.roundRect(x - 120*scale, centerY - 90*scale, 80*scale, 20*scale, 10*scale);
+        ctx.fill();
+        
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY - 80*scale, 120*scale, 100*scale, 20*scale);
+        ctx.fill();
+        
+        // Headphone speakers (left and right)
+        ctx.beginPath();
+        ctx.arc(x - 80*scale, centerY - 30*scale, 25*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 80*scale, centerY - 30*scale, 25*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Face visor
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY - 50*scale, 100*scale, 25*scale, 12*scale);
+        ctx.fill();
+        
+        // Mouth grille
+        ctx.beginPath();
+        ctx.roundRect(x - 20*scale, centerY - 10*scale, 40*scale, 12*scale, 6*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY + 20*scale, 120*scale, 80*scale, 15*scale);
+        ctx.fill();
+        
+        // Arms/shoulders
+        ctx.beginPath();
+        ctx.arc(x - 80*scale, centerY + 60*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 80*scale, centerY + 60*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // DJ Deck
+        ctx.beginPath();
+        ctx.roundRect(x - 120*scale, centerY + 100*scale, 240*scale, 60*scale, 8*scale);
+        ctx.fill();
+        
+        // Turntables
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.arc(x - 60*scale, centerY + 130*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 60*scale, centerY + 130*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Music note symbol
+        ctx.fillStyle = robotColor;
+        ctx.font = `${32*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', x, centerY + 140*scale);
+        break;
+        
+      case 'producer':
+        // Producer Robot with crown (Reference Image 3)
+        
+        // Crown with spikes
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.moveTo(x - 60*scale, centerY - 100*scale);
+        ctx.lineTo(x - 40*scale, centerY - 140*scale);
+        ctx.lineTo(x - 20*scale, centerY - 120*scale);
+        ctx.lineTo(x, centerY - 150*scale);
+        ctx.lineTo(x + 20*scale, centerY - 120*scale);
+        ctx.lineTo(x + 40*scale, centerY - 140*scale);
+        ctx.lineTo(x + 60*scale, centerY - 100*scale);
+        ctx.lineTo(x - 60*scale, centerY - 100*scale);
+        ctx.fill();
+        
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY - 100*scale, 120*scale, 120*scale, 25*scale);
+        ctx.fill();
+        
+        // Headphones
+        ctx.beginPath();
+        ctx.arc(x - 80*scale, centerY - 40*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 80*scale, centerY - 40*scale, 20*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Face visor/goggles
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY - 60*scale, 100*scale, 30*scale, 15*scale);
+        ctx.fill();
+        
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(x - 25*scale, centerY - 45*scale, 8*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 25*scale, centerY - 45*scale, 8*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Mouth
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, centerY - 15*scale, 30*scale, 10*scale, 5*scale);
+        ctx.fill();
+        
+        // Body with vest
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY + 20*scale, 100*scale, 100*scale, 15*scale);
+        ctx.fill();
+        
+        // Vest details
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 6*scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 30*scale, centerY + 20*scale);
+        ctx.lineTo(x - 30*scale, centerY + 100*scale);
+        ctx.moveTo(x + 30*scale, centerY + 20*scale);
+        ctx.lineTo(x + 30*scale, centerY + 100*scale);
+        ctx.stroke();
+        
+        // Musical note on chest
+        ctx.fillStyle = darkColor;
+        ctx.font = `${40*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', x, centerY + 80*scale);
+        
+        // Arms
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.arc(x - 70*scale, centerY + 70*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 70*scale, centerY + 70*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        break;
+        
+      case 'hardcore':
+        // Hardcore Robot with goggles and chain (Reference Image 4)
+        
+        // Backward cap
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 70*scale, centerY - 110*scale, 140*scale, 30*scale, 15*scale);
+        ctx.fill();
+        
+        // Cap button/dot
+        ctx.beginPath();
+        ctx.arc(x, centerY - 110*scale, 6*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY - 80*scale, 120*scale, 100*scale, 20*scale);
+        ctx.fill();
+        
+        // Goggles frame
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 8*scale;
+        ctx.beginPath();
+        ctx.arc(x - 30*scale, centerY - 30*scale, 25*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 30*scale, centerY - 30*scale, 25*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Goggle lenses
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.arc(x - 30*scale, centerY - 30*scale, 18*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 30*scale, centerY - 30*scale, 18*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Goggle bridge
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 6*scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 5*scale, centerY - 30*scale);
+        ctx.lineTo(x + 5*scale, centerY - 30*scale);
+        ctx.stroke();
+        
+        // Skull teeth
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.rect(x - 20*scale, centerY + 5*scale, 8*scale, 15*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.rect(x - 5*scale, centerY + 5*scale, 8*scale, 15*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.rect(x + 10*scale, centerY + 5*scale, 8*scale, 15*scale);
+        ctx.fill();
+        
+        // Chain necklace
+        ctx.strokeStyle = robotColor;
+        ctx.lineWidth = 12*scale;
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const chainX = x - 40*scale + (i * 20*scale);
+          const chainY = centerY + 40*scale + Math.sin(i) * 10*scale;
+          ctx.beginPath();
+          ctx.arc(chainX, chainY, 8*scale, 0, 2*Math.PI);
+          ctx.stroke();
+        }
+        
+        // Body
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY + 60*scale, 100*scale, 80*scale, 15*scale);
+        ctx.fill();
+        
+        // Arms
+        ctx.beginPath();
+        ctx.arc(x - 70*scale, centerY + 100*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 70*scale, centerY + 100*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        break;
+        
+      case 'raver':
+        // Raver Robot with speaker head (Reference Image 7)
+        
+        // Speaker box head
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 80*scale, centerY - 80*scale, 160*scale, 120*scale, 15*scale);
+        ctx.fill();
+        
+        // Speaker cone (large)
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 8*scale;
+        ctx.beginPath();
+        ctx.arc(x, centerY - 20*scale, 50*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, centerY - 20*scale, 30*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, centerY - 20*scale, 15*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Speaker center
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.arc(x, centerY - 20*scale, 8*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Corner dots/screws
+        ctx.beginPath();
+        ctx.arc(x - 65*scale, centerY - 65*scale, 4*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 65*scale, centerY - 65*scale, 4*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x - 65*scale, centerY + 25*scale, 4*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 65*scale, centerY + 25*scale, 4*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Side volume controls
+        ctx.beginPath();
+        ctx.roundRect(x + 90*scale, centerY - 40*scale, 20*scale, 60*scale, 10*scale);
+        ctx.fill();
+        
+        // Volume lines
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 3*scale;
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.moveTo(x + 95*scale, centerY - 30*scale + (i * 15*scale));
+          ctx.lineTo(x + 105*scale, centerY - 30*scale + (i * 15*scale));
+          ctx.stroke();
+        }
+        
+        // Body with "RAVE" text
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY + 40*scale, 120*scale, 80*scale, 15*scale);
+        ctx.fill();
+        
+        // RAVE text
+        ctx.fillStyle = darkColor;
+        ctx.font = `bold ${24*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('RAVE', x, centerY + 90*scale);
+        
+        // Arms
+        ctx.beginPath();
+        ctx.arc(x - 80*scale, centerY + 80*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 80*scale, centerY + 80*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        break;
+        
+      case 'turntablist':
+        // Turntablist Robot (Reference Image 8)
+        
+        // Headphone headband
+        ctx.strokeStyle = robotColor;
+        ctx.lineWidth = 12*scale;
+        ctx.beginPath();
+        ctx.arc(x, centerY - 40*scale, 70*scale, 0.1*Math.PI, 0.9*Math.PI);
+        ctx.stroke();
+        
+        // Head (round)
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.arc(x, centerY - 20*scale, 60*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Headphone speakers
+        ctx.beginPath();
+        ctx.arc(x - 70*scale, centerY - 20*scale, 25*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 70*scale, centerY - 20*scale, 25*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Face visor
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, centerY - 40*scale, 80*scale, 20*scale, 10*scale);
+        ctx.fill();
+        
+        // Mouth grille
+        ctx.beginPath();
+        ctx.rect(x - 8*scale, centerY - 5*scale, 4*scale, 8*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.rect(x, centerY - 5*scale, 4*scale, 8*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.rect(x + 8*scale, centerY - 5*scale, 4*scale, 8*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY + 40*scale, 100*scale, 60*scale, 15*scale);
+        ctx.fill();
+        
+        // DJ Deck/turntable
+        ctx.beginPath();
+        ctx.roundRect(x - 100*scale, centerY + 100*scale, 200*scale, 50*scale, 8*scale);
+        ctx.fill();
+        
+        // Turntable platters
+        ctx.strokeStyle = darkColor;
+        ctx.lineWidth = 6*scale;
+        ctx.beginPath();
+        ctx.arc(x - 50*scale, centerY + 125*scale, 25*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 50*scale, centerY + 125*scale, 25*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Crossfader
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, centerY + 110*scale, 60*scale, 8*scale, 4*scale);
+        ctx.fill();
+        
+        // Fader knob
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 5*scale, centerY + 108*scale, 10*scale, 12*scale, 2*scale);
+        ctx.fill();
+        break;
+        
+      case 'boombox':
+        // Boombox Robot (Reference Image 5 - black and white boombox style)
+        
+        // Lightning bolt on head
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.moveTo(x - 15*scale, centerY - 120*scale);
+        ctx.lineTo(x + 5*scale, centerY - 100*scale);
+        ctx.lineTo(x - 5*scale, centerY - 100*scale);
+        ctx.lineTo(x + 15*scale, centerY - 80*scale);
+        ctx.lineTo(x + 5*scale, centerY - 90*scale);
+        ctx.lineTo(x - 5*scale, centerY - 90*scale);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Head with face mask/visor
+        ctx.beginPath();
+        ctx.roundRect(x - 60*scale, centerY - 80*scale, 120*scale, 100*scale, 20*scale);
+        ctx.fill();
+        
+        // Face visor/mask
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 45*scale, centerY - 60*scale, 90*scale, 30*scale, 15*scale);
+        ctx.fill();
+        
+        // Small mouth vent
+        ctx.beginPath();
+        ctx.roundRect(x - 10*scale, centerY - 10*scale, 20*scale, 8*scale, 4*scale);
+        ctx.fill();
+        
+        // Body with play button
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 50*scale, centerY + 20*scale, 100*scale, 80*scale, 15*scale);
+        ctx.fill();
+        
+        // Play button triangle
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.moveTo(x - 15*scale, centerY + 40*scale);
+        ctx.lineTo(x + 15*scale, centerY + 60*scale);
+        ctx.lineTo(x - 15*scale, centerY + 80*scale);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Boombox carried on shoulder
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.roundRect(x + 60*scale, centerY - 20*scale, 80*scale, 60*scale, 8*scale);
+        ctx.fill();
+        
+        // Boombox speakers
+        ctx.fillStyle = darkColor;
+        ctx.beginPath();
+        ctx.arc(x + 80*scale, centerY + 10*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 120*scale, centerY + 10*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Boombox antenna
+        ctx.strokeStyle = robotColor;
+        ctx.lineWidth = 4*scale;
+        ctx.beginPath();
+        ctx.moveTo(x + 140*scale, centerY - 20*scale);
+        ctx.lineTo(x + 155*scale, centerY - 40*scale);
+        ctx.stroke();
+        
+        // Arms
+        ctx.fillStyle = robotColor;
+        ctx.beginPath();
+        ctx.arc(x - 70*scale, centerY + 60*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 70*scale, centerY + 60*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.arc(x - 25*scale, centerY + 120*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 25*scale, centerY + 120*scale, 15*scale, 0, 2*Math.PI);
+        ctx.fill();
+        break;
+        
+      default:
+        // Default fallback to DJ robot
+        drawIconicDroid(ctx, 'dj', x, y, size);
+        break;
+    }
+  };
+
+  // Animation system using requestAnimationFrame
+  const [animationFrame, setAnimationFrame] = useState<number | null>(null);
+  const [animationTime, setAnimationTime] = useState(0);
+
+  useEffect(() => {
+    if (config.animation === 'none') {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        setAnimationFrame(null);
+      }
+      return;
+    }
+
+    const animate = (currentTime: number) => {
+      setAnimationTime(currentTime * config.animationSpeed * 0.001);
+      drawAvatar();
+      setAnimationFrame(requestAnimationFrame(animate));
+    };
+
+    setAnimationFrame(requestAnimationFrame(animate));
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [config.animation, config.animationSpeed, config]);
+
+  const applyAnimation = (ctx: CanvasRenderingContext2D, centerX: number, centerY: number) => {
+    const time = animationTime;
+    
+    switch (config.animation) {
+      case 'pulse':
+        const pulseScale = 1 + Math.sin(time * 3) * 0.1;
+        ctx.scale(pulseScale, pulseScale);
+        break;
+      case 'rotate':
+        ctx.rotate(time * 0.5);
+        break;
+      case 'bounce':
+        const bounceY = Math.sin(time * 4) * 10;
+        ctx.translate(0, bounceY);
+        break;
+      case 'glow':
+        const glowIntensity = (Math.sin(time * 2) + 1) * 0.5;
+        ctx.shadowColor = config.primaryColor;
+        ctx.shadowBlur = glowIntensity * 20;
+        break;
+      case 'wave':
+        const waveX = Math.sin(time * 2) * 5;
+        const waveY = Math.cos(time * 3) * 3;
+        ctx.translate(waveX, waveY);
+        break;
+      case 'vibrate':
+        const vibrateX = (Math.random() - 0.5) * 2;
+        const vibrateY = (Math.random() - 0.5) * 2;
+        ctx.translate(vibrateX, vibrateY);
+        break;
+      case 'float':
+        const floatY = Math.sin(time * 1.5) * 8;
+        ctx.translate(0, floatY);
+        break;
+    }
+  };
+
+  const drawAvatar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = safeCanvas(() => canvas.getContext('2d'));
+    if (!ctx) return;
+
+    const size = config.size || 150;
+    canvas.width = size;
+    canvas.height = size;
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+
+    // Save initial state
+    ctx.save();
+
+    // Apply animation transformations
+    ctx.translate(centerX, centerY);
+    applyAnimation(ctx, centerX, centerY);
+    ctx.translate(-centerX, -centerY);
+
+    // Draw the robot
+    drawIconicDroid(ctx, config.droidType, centerX, centerY, size);
+
+    // Restore state
+    ctx.restore();
+  };
+
+  const drawDroid = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+    // This is now handled by drawIconicDroid
+    drawIconicDroid(ctx, config.droidType, x, y, size);
+  };
+
+  // Remove old accessory and gadget functions since we have complete robot designs
+  const drawAccessory = () => {};
+  const drawGadget = () => {};
+  const drawSimpleAccessory = () => {};
+
+  const saveAvatar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      const imageData = safeCanvas(() => canvas.toDataURL('image/png'));
+      if (!imageData) {
+        toast({
+          title: "Error",
+          description: "Failed to generate avatar image",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const avatarData: AvatarData = {
+        imageData,
+        config
+      };
+
+      if (onAvatarSave) {
+        onAvatarSave(avatarData);
+      }
+
+      // Download the avatar
+      safeDownload(() => {
+        const link = document.createElement('a');
+        link.download = `thecueroom-avatar-${config.droidType}.png`;
+        link.href = imageData;
+        link.click();
+      });
+
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+
+      toast({
+        title: "Avatar Saved!",
+        description: "Your underground robot avatar has been created and downloaded.",
+      });
+
+    } catch (error) {
+      console.error('Error saving avatar:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save avatar. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+        
+        // Headphones
+        ctx.beginPath();
+        ctx.arc(x, y - 40*scale, 35*scale, 0.2*Math.PI, 0.8*Math.PI);
+        ctx.stroke();
+        
+        // Ear cups
+        ctx.beginPath();
+        ctx.arc(x - 35*scale, y - 15*scale, 12*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 35*scale, y - 15*scale, 12*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Eyes (horizontal slits)
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 18*scale, y - 20*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(x + 6*scale, y - 20*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 20*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Triangular symbol on chest
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 30*scale);
+        ctx.lineTo(x - 8*scale, y + 45*scale);
+        ctx.lineTo(x + 8*scale, y + 45*scale);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Arms
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 25*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 25*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 65*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 65*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'dj':
+        // Robot with cap and peace sign (inspired by top-left black&white)
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 30*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Cap
+        ctx.beginPath();
+        ctx.arc(x, y - 35*scale, 32*scale, Math.PI, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Cap brim
+        ctx.beginPath();
+        ctx.ellipse(x, y - 15*scale, 45*scale, 8*scale, 0, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Eyes (horizontal slits)
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 18*scale, y - 15*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(x + 6*scale, y - 15*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 25*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Music note on chest
+        ctx.fillStyle = config.accentColor;
+        ctx.font = `${20*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', x, y + 50*scale);
+        
+        // Left arm (peace sign)
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 30*scale, 12*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Peace sign hand
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3*scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 45*scale, y + 20*scale);
+        ctx.lineTo(x - 45*scale, y + 10*scale);
+        ctx.moveTo(x - 42*scale, y + 20*scale);
+        ctx.lineTo(x - 42*scale, y + 10*scale);
+        ctx.stroke();
+        
+        // Right arm
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'producer':
+        // Robot with crown/mohawk and vinyl records (inspired by bottom-left)
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 25*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Crown/mohawk spikes
+        ctx.fillStyle = config.secondaryColor;
+        for (let i = 0; i < 5; i++) {
+          const spikeX = x - 20*scale + (i * 10*scale);
+          ctx.beginPath();
+          ctx.moveTo(spikeX, y - 30*scale);
+          ctx.lineTo(spikeX - 4*scale, y - 45*scale);
+          ctx.lineTo(spikeX + 4*scale, y - 45*scale);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        
+        // Goggles
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3*scale;
+        ctx.beginPath();
+        ctx.arc(x - 15*scale, y - 10*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 15*scale, y - 10*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Goggle bridge
+        ctx.beginPath();
+        ctx.moveTo(x - 7*scale, y - 10*scale);
+        ctx.lineTo(x + 7*scale, y - 10*scale);
+        ctx.stroke();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 30*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Vinyl record symbol on chest
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2*scale;
+        ctx.beginPath();
+        ctx.arc(x, y + 45*scale, 10*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y + 45*scale, 2*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Left arm holding vinyl
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 35*scale, 12*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Vinyl record in hand
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2*scale;
+        ctx.beginPath();
+        ctx.arc(x - 50*scale, y + 30*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Right arm
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 35*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 75*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 75*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'raver':
+        // Robot with boombox (inspired by top-right designs)
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 30*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Visor/sunglasses
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y - 20*scale, 50*scale, 8*scale, 4*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 25*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Play button on chest
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.moveTo(x - 5*scale, y + 35*scale);
+        ctx.lineTo(x + 8*scale, y + 45*scale);
+        ctx.lineTo(x - 5*scale, y + 55*scale);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Arms
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Boombox
+        ctx.fillStyle = config.secondaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 35*scale, y + 75*scale, 70*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Speakers
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2*scale;
+        ctx.beginPath();
+        ctx.arc(x - 20*scale, y + 87*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 20*scale, y + 87*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Music note
+        ctx.fillStyle = config.accentColor;
+        ctx.font = `${12*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', x, y + 90*scale);
+        
+        // Legs
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 105*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 105*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'acid':
+        // Robot with microphone (inspired by top-right black&white)
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 30*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Cap backwards
+        ctx.beginPath();
+        ctx.arc(x, y - 35*scale, 32*scale, 0, Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Cap brim (back)
+        ctx.beginPath();
+        ctx.ellipse(x, y - 50*scale, 20*scale, 6*scale, 0, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Eyes (horizontal slits)
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 18*scale, y - 15*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(x + 6*scale, y - 15*scale, 12*scale, 4*scale, 2*scale);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 25*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Music note on chest
+        ctx.fillStyle = config.accentColor;
+        ctx.font = `${20*scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('♪', x, y + 50*scale);
+        
+        // Right arm holding microphone
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 20*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Microphone
+        ctx.fillStyle = config.accentColor;
+        ctx.beginPath();
+        ctx.arc(x + 50*scale, y + 15*scale, 8*scale, 0, 2*Math.PI);
+        ctx.fill();
+        
+        // Mic handle
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 4*scale;
+        ctx.beginPath();
+        ctx.moveTo(x + 45*scale, y + 23*scale);
+        ctx.lineTo(x + 40*scale, y + 35*scale);
+        ctx.stroke();
+        
+        // Left arm
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'hardcore':
+        // Robot with chain and goggles (inspired by bottom-right purple)
+        // Head
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 30*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Headphones
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 4*scale;
+        ctx.beginPath();
+        ctx.arc(x, y - 35*scale, 35*scale, 0.2*Math.PI, 0.8*Math.PI);
+        ctx.stroke();
+        
+        // Ear cups
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.arc(x - 35*scale, y - 10*scale, 12*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 35*scale, y - 10*scale, 12*scale, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Goggles
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3*scale;
+        ctx.beginPath();
+        ctx.arc(x - 12*scale, y - 5*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 12*scale, y - 5*scale, 8*scale, 0, 2*Math.PI);
+        ctx.stroke();
+        
+        // Goggle bridge
+        ctx.beginPath();
+        ctx.moveTo(x - 4*scale, y - 5*scale);
+        ctx.lineTo(x + 4*scale, y - 5*scale);
+        ctx.stroke();
+        
+        // Body
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 25*scale, y + 25*scale, 50*scale, 40*scale, 6*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Chain necklace
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3*scale;
+        for (let i = 0; i < 7; i++) {
+          const chainX = x - 18*scale + (i * 6*scale);
+          const chainY = y + 35*scale + Math.sin(i * 0.8) * 3*scale;
+          ctx.beginPath();
+          ctx.arc(chainX, chainY, 3*scale, 0, 2*Math.PI);
+          ctx.stroke();
+        }
+        
+        // Arms
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - 40*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 28*scale, y + 30*scale, 12*scale, 25*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Legs
+        ctx.beginPath();
+        ctx.roundRect(x - 15*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(x + 5*scale, y + 70*scale, 10*scale, 20*scale, 4*scale);
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      default:
+        // Basic droid
+        ctx.beginPath();
+        ctx.roundRect(x - 30*scale, y - 30*scale, 60*scale, 50*scale, 8*scale);
+        ctx.fill();
+        ctx.stroke();
+    }
+  };
+
+  const drawAccessory = (ctx: CanvasRenderingContext2D, accessory: string, x: number, y: number, size: number) => {
+    const headWidth = size * 0.35;
+    
+    ctx.fillStyle = config.accentColor;
+    ctx.strokeStyle = config.secondaryColor;
+    ctx.lineWidth = 2;
+    
+    switch (accessory) {
+      case 'eyepatch':
+        // Underground pirate-style eye patch
+        ctx.beginPath();
+        ctx.arc(x - headWidth * 0.4, y - headWidth * 0.2, headWidth * 0.18, 0, 2 * Math.PI);
+        ctx.fillStyle = '#000000';
+        ctx.fill();
+        ctx.strokeStyle = config.accentColor;
+        ctx.stroke();
+        // Decorative skull symbol
+        ctx.fillStyle = config.accentColor;
+        ctx.font = `${headWidth * 0.2}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('☠', x - headWidth * 0.4, y - headWidth * 0.15);
+        // Enhanced strap with studs
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - headWidth * 0.9, y - headWidth * 0.2);
+        ctx.lineTo(x + headWidth * 0.9, y - headWidth * 0.2);
+        ctx.stroke();
+        break;
+        
+      case 'headphones':
+        // Professional DJ headphones
+        ctx.strokeStyle = config.accentColor;
+        ctx.fillStyle = config.primaryColor;
+        ctx.lineWidth = 4;
+        
+        // Headband arc
+        ctx.beginPath();
+        ctx.arc(x, y - headWidth * 0.6, headWidth * 0.8, 0.2 * Math.PI, 0.8 * Math.PI);
+        ctx.stroke();
+        
+        // Left ear cup
+        ctx.beginPath();
+        ctx.arc(x - headWidth * 0.7, y - headWidth * 0.1, headWidth * 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Right ear cup
+        ctx.beginPath();
+        ctx.arc(x + headWidth * 0.7, y - headWidth * 0.1, headWidth * 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Connection arms
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x - headWidth * 0.6, y - headWidth * 0.4);
+        ctx.lineTo(x - headWidth * 0.7, y - headWidth * 0.3);
+        ctx.moveTo(x + headWidth * 0.6, y - headWidth * 0.4);
+        ctx.lineTo(x + headWidth * 0.7, y - headWidth * 0.3);
+        ctx.stroke();
+        break;
+        
+      case 'visor':
+        // Futuristic LED visor
+        ctx.fillStyle = config.primaryColor + '80';
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2;
+        
+        // Main visor panel
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.6, y - headWidth * 0.3, headWidth * 1.2, headWidth * 0.2, headWidth * 0.05);
+        ctx.fill();
+        ctx.stroke();
+        
+        // LED strip effect
+        ctx.fillStyle = config.accentColor;
+        for (let i = 0; i < 8; i++) {
+          const ledX = x - headWidth * 0.5 + (i * headWidth * 0.125);
+          ctx.beginPath();
+          ctx.arc(ledX, y - headWidth * 0.2, headWidth * 0.02, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        break;
+        
+      case 'antenna':
+        // Communication antenna array
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        
+        // Main antenna
+        ctx.beginPath();
+        ctx.moveTo(x, y - headWidth * 0.8);
+        ctx.lineTo(x, y - headWidth * 1.3);
+        ctx.stroke();
+        
+        // Signal rings
+        ctx.strokeStyle = config.secondaryColor;
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 3; i++) {
+          ctx.beginPath();
+          ctx.arc(x, y - headWidth * 1.3, headWidth * 0.1 * i, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+        
+        // Side antennas
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x - headWidth * 0.3, y - headWidth * 0.7);
+        ctx.lineTo(x - headWidth * 0.2, y - headWidth * 1.0);
+        ctx.moveTo(x + headWidth * 0.3, y - headWidth * 0.7);
+        ctx.lineTo(x + headWidth * 0.2, y - headWidth * 1.0);
+        ctx.stroke();
+        break;
+        
+      case 'goggles':
+        // Cyberpunk night vision goggles
+        ctx.fillStyle = config.primaryColor;
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2;
+        
+        // Left lens
+        ctx.beginPath();
+        ctx.arc(x - headWidth * 0.3, y - headWidth * 0.2, headWidth * 0.15, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Right lens
+        ctx.beginPath();
+        ctx.arc(x + headWidth * 0.3, y - headWidth * 0.2, headWidth * 0.15, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Bridge
+        ctx.beginPath();
+        ctx.moveTo(x - headWidth * 0.15, y - headWidth * 0.2);
+        ctx.lineTo(x + headWidth * 0.15, y - headWidth * 0.2);
+        ctx.stroke();
+        
+        // Lens glow effect
+        ctx.fillStyle = config.accentColor + '60';
+        ctx.beginPath();
+        ctx.arc(x - headWidth * 0.3, y - headWidth * 0.2, headWidth * 0.1, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + headWidth * 0.3, y - headWidth * 0.2, headWidth * 0.1, 0, 2 * Math.PI);
+        ctx.fill();
+        break;
+    }
+  };
+
+  const drawGadget = (ctx: CanvasRenderingContext2D, gadget: string, x: number, y: number, size: number) => {
+    const headWidth = size * 0.35;
+    const gadgetY = y + headWidth * 1.3;
+    
+    ctx.fillStyle = config.secondaryColor;
+    ctx.strokeStyle = config.accentColor;
+    ctx.lineWidth = 2;
+    
+    switch (gadget) {
+      case 'controller':
+        // Professional DJ controller/mixer
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.8, gadgetY, headWidth * 1.6, headWidth * 0.5, headWidth * 0.05);
+        ctx.fill();
+        ctx.strokeStyle = config.accentColor;
+        ctx.stroke();
+        
+        // Control sections
+        for (let i = 0; i < 2; i++) {
+          const sectionX = x - headWidth * 0.4 + (i * headWidth * 0.8);
+          
+          // EQ knobs
+          for (let j = 0; j < 3; j++) {
+            const knobY = gadgetY + headWidth * 0.1 + (j * headWidth * 0.1);
+            ctx.fillStyle = config.primaryColor;
+            ctx.beginPath();
+            ctx.arc(sectionX, knobY, headWidth * 0.03, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Knob indicator
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(sectionX, knobY);
+            ctx.lineTo(sectionX, knobY - headWidth * 0.02);
+            ctx.stroke();
+          }
+          
+          // Channel fader
+          ctx.fillStyle = '#333333';
+          ctx.beginPath();
+          ctx.roundRect(sectionX + headWidth * 0.15, gadgetY + headWidth * 0.1, headWidth * 0.02, headWidth * 0.25, headWidth * 0.01);
+          ctx.fill();
+          
+          // Fader handle
+          ctx.fillStyle = config.accentColor;
+          ctx.beginPath();
+          ctx.roundRect(sectionX + headWidth * 0.13, gadgetY + headWidth * 0.2, headWidth * 0.06, headWidth * 0.03, headWidth * 0.01);
+          ctx.fill();
+        }
+        
+        // Crossfader
+        ctx.fillStyle = '#333333';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.3, gadgetY + headWidth * 0.4, headWidth * 0.6, headWidth * 0.03, headWidth * 0.01);
+        ctx.fill();
+        
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.05, gadgetY + headWidth * 0.38, headWidth * 0.1, headWidth * 0.07, headWidth * 0.01);
+        ctx.fill();
+        break;
+        
+      case 'knife':
+        // Tactical underground knife
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        
+        // Blade
+        ctx.fillStyle = '#c0c0c0';
+        ctx.beginPath();
+        ctx.moveTo(x, gadgetY - headWidth * 0.1);
+        ctx.lineTo(x + headWidth * 0.4, gadgetY + headWidth * 0.1);
+        ctx.lineTo(x + headWidth * 0.3, gadgetY + headWidth * 0.15);
+        ctx.lineTo(x - headWidth * 0.1, gadgetY + headWidth * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Handle
+        ctx.fillStyle = '#2a2a2a';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.25, gadgetY, headWidth * 0.15, headWidth * 0.1, headWidth * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Handle grip lines
+        ctx.strokeStyle = config.primaryColor;
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+          const lineX = x - headWidth * 0.22 + (i * headWidth * 0.03);
+          ctx.beginPath();
+          ctx.moveTo(lineX, gadgetY + headWidth * 0.02);
+          ctx.lineTo(lineX, gadgetY + headWidth * 0.08);
+          ctx.stroke();
+        }
+        break;
+        
+      case 'synthesizer':
+        // Modular synthesizer module
+        ctx.fillStyle = '#2a2a2a';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.5, gadgetY, headWidth * 1.0, headWidth * 0.4, headWidth * 0.03);
+        ctx.fill();
+        ctx.strokeStyle = config.accentColor;
+        ctx.stroke();
+        
+        // Patch cables
+        const cableColors = [config.primaryColor, config.secondaryColor, config.accentColor];
+        for (let i = 0; i < 6; i++) {
+          const cableX = x - headWidth * 0.4 + (i * headWidth * 0.13);
+          ctx.strokeStyle = cableColors[i % 3];
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cableX, gadgetY + headWidth * 0.1, headWidth * 0.02, 0, 2 * Math.PI);
+          ctx.stroke();
+          
+          // Cable connection
+          ctx.beginPath();
+          ctx.moveTo(cableX, gadgetY + headWidth * 0.12);
+          ctx.quadraticCurveTo(cableX + headWidth * 0.05, gadgetY + headWidth * 0.2, cableX + headWidth * 0.1, gadgetY + headWidth * 0.3);
+          ctx.stroke();
+        }
+        
+        // Control knobs
+        for (let i = 0; i < 4; i++) {
+          const knobX = x - headWidth * 0.3 + (i * headWidth * 0.2);
+          ctx.fillStyle = '#444444';
+          ctx.beginPath();
+          ctx.arc(knobX, gadgetY + headWidth * 0.25, headWidth * 0.03, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = config.primaryColor;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        break;
+        
+      case 'vinyl':
+        // Vinyl record with turntable
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(x, gadgetY + headWidth * 0.2, headWidth * 0.25, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Record grooves
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 5; i++) {
+          ctx.beginPath();
+          ctx.arc(x, gadgetY + headWidth * 0.2, headWidth * 0.05 * i, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+        
+        // Center label
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.arc(x, gadgetY + headWidth * 0.2, headWidth * 0.08, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Spindle hole
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(x, gadgetY + headWidth * 0.2, headWidth * 0.02, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Tonearm
+        ctx.strokeStyle = config.accentColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + headWidth * 0.3, gadgetY);
+        ctx.lineTo(x + headWidth * 0.1, gadgetY + headWidth * 0.1);
+        ctx.stroke();
+        break;
+        
+      case 'sampler':
+        // MPC-style sampler
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.4, gadgetY, headWidth * 0.8, headWidth * 0.4, headWidth * 0.03);
+        ctx.fill();
+        ctx.strokeStyle = config.accentColor;
+        ctx.stroke();
+        
+        // Sample pads grid
+        for (let row = 0; row < 2; row++) {
+          for (let col = 0; col < 4; col++) {
+            const padX = x - headWidth * 0.3 + (col * headWidth * 0.15);
+            const padY = gadgetY + headWidth * 0.05 + (row * headWidth * 0.15);
+            
+            // Pad background
+            ctx.fillStyle = row === 0 && col < 2 ? config.primaryColor + '60' : '#333333';
+            ctx.beginPath();
+            ctx.roundRect(padX, padY, headWidth * 0.1, headWidth * 0.1, headWidth * 0.01);
+            ctx.fill();
+            
+            // Pad border
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+        
+        // Display screen
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.roundRect(x - headWidth * 0.15, gadgetY + headWidth * 0.32, headWidth * 0.3, headWidth * 0.06, headWidth * 0.01);
+        ctx.fill();
+        
+        // Screen text simulation
+        ctx.fillStyle = config.accentColor;
+        ctx.font = `${headWidth * 0.02}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('BPM 128', x, gadgetY + headWidth * 0.36);
+        break;
+        
+      case 'knife':
+        // Draw knife (beat cutting tool)
+        ctx.fillStyle = '#888888';
+        ctx.beginPath();
+        // Handle
+        ctx.rect(x - headRadius * 0.05, gadgetY, headRadius * 0.1, headRadius * 0.3);
+        ctx.fill();
+        // Blade
+        ctx.fillStyle = '#cccccc';
+        ctx.beginPath();
+        ctx.moveTo(x, gadgetY);
+        ctx.lineTo(x - headRadius * 0.02, gadgetY - headRadius * 0.4);
+        ctx.lineTo(x + headRadius * 0.02, gadgetY - headRadius * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+        
+      case 'synthesizer':
+        // Draw mini synth
+        ctx.fillStyle = '#222222';
+        ctx.beginPath();
+        ctx.rect(x - headRadius * 0.4, gadgetY, headRadius * 0.8, headRadius * 0.3);
+        ctx.fill();
+        ctx.stroke();
+        // Draw keys
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 6; i++) {
+          const keyX = x - headRadius * 0.3 + (i * headRadius * 0.1);
+          ctx.beginPath();
+          ctx.rect(keyX, gadgetY + headRadius * 0.05, headRadius * 0.08, headRadius * 0.2);
+          ctx.fill();
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        break;
+        
+      case 'vinyl':
+        // Draw vinyl record
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(x, gadgetY + headRadius * 0.15, headRadius * 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        // Draw center hole
+        ctx.fillStyle = config.primaryColor;
+        ctx.beginPath();
+        ctx.arc(x, gadgetY + headRadius * 0.15, headRadius * 0.04, 0, 2 * Math.PI);
+        ctx.fill();
+        break;
+        
+      case 'sampler':
+        // Draw beat pad
+        ctx.fillStyle = '#444444';
+        ctx.beginPath();
+        ctx.rect(x - headRadius * 0.3, gadgetY, headRadius * 0.6, headRadius * 0.4);
+        ctx.fill();
+        ctx.stroke();
+        // Draw pads
+        for (let row = 0; row < 2; row++) {
+          for (let col = 0; col < 2; col++) {
+            const padX = x - headRadius * 0.15 + (col * headRadius * 0.3);
+            const padY = gadgetY + headRadius * 0.05 + (row * headRadius * 0.15);
+            ctx.fillStyle = row * 2 + col < 2 ? config.primaryColor : config.secondaryColor;
+            ctx.beginPath();
+            ctx.rect(padX - headRadius * 0.08, padY, headRadius * 0.16, headRadius * 0.1);
+            ctx.fill();
+          }
+        }
+        break;
+    }
+  };
+
+  const drawSimpleAccessory = (ctx: CanvasRenderingContext2D, accessory: string, x: number, y: number, size: number) => {
+    const scale = size * 0.003;
+    
+    switch (accessory) {
+      case 'headphones':
+        // Simple headphone outline overlay
+        ctx.strokeStyle = config.secondaryColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y - 40*scale, 45*scale, 0.1*Math.PI, 0.9*Math.PI);
+        ctx.stroke();
+        break;
+        
+      case 'visor':
+        // Simple LED strip overlay
+        ctx.fillStyle = config.secondaryColor + '80';
+        ctx.beginPath();
+        ctx.roundRect(x - 35*scale, y - 25*scale, 70*scale, 8*scale, 4*scale);
+        ctx.fill();
+        break;
+        
+      case 'antenna':
+        // Simple antenna array
+        ctx.strokeStyle = config.secondaryColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y - 50*scale);
+        ctx.lineTo(x, y - 70*scale);
+        ctx.stroke();
+        break;
+    }
+  };
+
+  const drawDroid = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+    // Clear canvas
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Draw background
+    const bg = DROID_ELEMENTS.backgrounds.find(b => b.id === config.background);
+    if (bg?.color === 'gradient') {
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+      gradient.addColorStop(0, config.primaryColor + '40');
+      gradient.addColorStop(1, config.secondaryColor + '20');
+      ctx.fillStyle = gradient;
+    } else {
+      ctx.fillStyle = bg?.color || '#0a0a0a';
+    }
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Save context for animations
+    ctx.save();
+    
+    // Apply smooth animations
+    const time = Date.now() * config.animationSpeed * 0.001;
+    
+    switch (config.animation) {
+      case 'spin':
+        const rotation = time % (2 * Math.PI);
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.translate(-x, -y);
+        break;
+        
+      case 'bounce':
+        const bounceOffset = Math.sin(time * 2) * 10;
+        y += bounceOffset;
+        break;
+        
+      case 'pulse':
+        const pulseScale = 1 + Math.sin(time * 3) * 0.15;
+        ctx.translate(x, y);
+        ctx.scale(pulseScale, pulseScale);
+        ctx.translate(-x, -y);
+        break;
+        
+      case 'sway':
+        const swayOffset = Math.sin(time) * 12;
+        x += swayOffset;
+        break;
+        
+      case 'nod':
+        const nodRotation = Math.sin(time * 2) * 0.3;
+        ctx.translate(x, y - size * 0.2);
+        ctx.rotate(nodRotation);
+        ctx.translate(-x, -(y - size * 0.2));
+        break;
+    }
+    
+    // Draw the iconic underground music droid
+    drawIconicDroid(ctx, config.droidType, x, y, size);
+    
+    // Draw simple overlay accessories if needed
+    if (config.accessory !== 'none') {
+      drawSimpleAccessory(ctx, config.accessory, x, y, size);
+    }
+    
+    ctx.restore();
+  };
+  const drawAvatar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      const ctx = safeCanvas.getContext(canvas, '2d') as CanvasRenderingContext2D;
+      if (!ctx) return;
+
+      const size = config.size;
+      
+      if (!safeCanvas.setDimensions(canvas, size, size)) {
+        throw new Error('Failed to set canvas dimensions');
+      }
+
+      // Draw the complete droid
+      const centerX = size / 2;
+      const centerY = size / 2;
+      drawDroid(ctx, centerX, centerY, size);
+
+    } catch (error) {
+      console.error('Avatar drawing failed:', error);
+      toast({
+        title: "Avatar Generation Failed",
+        description: "Unable to generate avatar. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const saveAsProfileAvatar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    drawAvatar();
+    
+    setTimeout(() => {
+      try {
+        const imageData = canvas.toDataURL('image/png');
+        const avatarData: AvatarData = {
+          imageData,
+          config
+        };
+        
+        if (onAvatarSave) {
+          onAvatarSave(avatarData);
+        }
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 2000);
+        toast({
+          title: "Avatar Set",
+          description: "Your animated profile avatar has been updated!",
+        });
+      } catch (error) {
+        toast({
+          title: "Save Failed",
+          description: "Unable to save avatar. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 100);
+  };
+
+  const downloadAvatar = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    drawAvatar();
+    
+    setTimeout(() => {
+      const success = safeDownload.downloadCanvas(canvas, `profile-avatar-${Date.now()}.png`);
+      
+      if (success) {
+        toast({
+          title: "Avatar Downloaded",
+          description: "Your avatar has been saved to downloads!",
+        });
+      } else {
+        toast({
+          title: "Download Failed",
+          description: "Unable to download avatar. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 100);
+  };
+
+  const updateConfig = (key: keyof AvatarConfig, value: any) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
+
+  const getAnimationClass = () => {
+    switch (config.animation) {
+      case 'pulse': return 'animate-pulse';
+      case 'rotate': return 'animate-spin';
+      case 'bounce': return 'animate-bounce';
+      case 'wave': return 'animate-pulse';
+      case 'vibrate': return 'animate-ping';
+      case 'float': return 'animate-bounce';
+      case 'glow': return 'animate-pulse';
+      default: return '';
+    }
+  };
+
+  useEffect(() => {
+    drawAvatar();
+  }, [config]);
+
+  useEffect(() => {
+    generateRandomAvatar();
+  }, []);
+
+  return (
+    <Card className="cue-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <User className="h-5 w-5" />
+          Profile Avatar Creator
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Create a unique minimal avatar for your profile
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          
+          {/* Avatar Preview */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-center">
+              <div className="relative p-4 bg-secondary/20 rounded-lg border-2 border-dashed border-border">
+                <canvas
+                  ref={canvasRef}
+                  className={`rounded-lg transition-all duration-300 ${getAnimationClass()}`}
+                  style={{
+                    animationDuration: `${2 / config.animationSpeed}s`,
+                    filter: config.animation === 'glow' ? 'drop-shadow(0 0 20px currentColor)' : 'none'
+                  }}
+                />
+                {config.animation !== 'none' && (
+                  <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                    {DROID_ELEMENTS.animations.find(a => a.id === config.animation)?.name}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={generateRandomAvatar}
+                disabled={isGenerating}
+                variant="outline"
+                className="w-full"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+                {isGenerating ? 'Generating...' : 'Random Style'}
+              </Button>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={saveAsProfileAvatar}
+                  className={`transition-all duration-300 ${showSuccess ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                >
+                  {showSuccess ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Saved!
+                    </>
+                  ) : (
+                    <>
+                      <User className="w-4 h-4 mr-2" />
+                      Set as Profile
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={downloadAvatar}
+                  variant="outline"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Customization Controls */}
+          <div className="space-y-4">
+            
+            {/* Droid Type */}
+            <div className="space-y-2">
+              <Label className="font-medium">Droid Type</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {DROID_ELEMENTS.droidTypes.map((droid) => (
+                  <Button
+                    key={droid.id}
+                    onClick={() => updateConfig('droidType', droid.id)}
+                    variant={config.droidType === droid.id ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs flex flex-col h-auto py-2"
+                  >
+                    <span className="font-medium">{droid.name}</span>
+                    <span className="text-muted-foreground">{droid.description}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Accessories */}
+            <div className="space-y-2">
+              <Label className="font-medium">Accessories</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {DROID_ELEMENTS.accessories.map((accessory) => (
+                  <Button
+                    key={accessory.id}
+                    onClick={() => updateConfig('accessory', accessory.id)}
+                    variant={config.accessory === accessory.id ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs flex flex-col h-auto py-2"
+                  >
+                    <span className="font-medium">{accessory.name}</span>
+                    <span className="text-muted-foreground">{accessory.description}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gadgets */}
+            <div className="space-y-2">
+              <Label className="font-medium">Gadgets</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {DROID_ELEMENTS.gadgets.map((gadget) => (
+                  <Button
+                    key={gadget.id}
+                    onClick={() => updateConfig('gadget', gadget.id)}
+                    variant={config.gadget === gadget.id ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs flex flex-col h-auto py-2"
+                  >
+                    <span className="font-medium">{gadget.name}</span>
+                    <span className="text-muted-foreground">{gadget.description}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Background */}
+            <div className="space-y-2">
+              <Label className="font-medium">Background</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {DROID_ELEMENTS.backgrounds.map((bg) => (
+                  <Button
+                    key={bg.id}
+                    onClick={() => updateConfig('background', bg.id)}
+                    variant={config.background === bg.id ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                  >
+                    {bg.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Colors */}
+            <div className="space-y-3">
+              <Label className="font-medium">Colors</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-sm">Primary Color</Label>
+                  <div className="flex flex-wrap gap-1">
+                    {TECHNO_COLORS.slice(0, 8).map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => updateConfig('primaryColor', color)}
+                        className={`w-6 h-6 rounded border-2 ${config.primaryColor === color ? 'border-white' : 'border-gray-600'}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Secondary Color</Label>
+                  <div className="flex flex-wrap gap-1">
+                    {TECHNO_COLORS.slice(8).map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => updateConfig('secondaryColor', color)}
+                        className={`w-6 h-6 rounded border-2 ${config.secondaryColor === color ? 'border-white' : 'border-gray-600'}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Animation Controls */}
+            <div className="space-y-3">
+              <Label className="font-medium">Animation Effect</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {DROID_ELEMENTS.animations.map((anim) => (
+                  <Button
+                    key={anim.id}
+                    onClick={() => updateConfig('animation', anim.id)}
+                    variant={config.animation === anim.id ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs justify-start"
+                  >
+                    <div className="flex flex-col items-start">
+                      <span>{anim.name}</span>
+                      <span className="text-xs text-muted-foreground">{anim.description}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+              
+              {config.animation !== 'none' && (
+                <div className="space-y-2">
+                  <Label className="text-sm">Speed: {config.animationSpeed.toFixed(1)}x</Label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    step="0.1"
+                    value={config.animationSpeed}
+                    onChange={(e) => updateConfig('animationSpeed', parseFloat(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Size Control */}
+            <div className="space-y-2">
+              <Label className="font-medium">Avatar Size: {config.size}px</Label>
+              <input
+                type="range"
+                min="200"
+                max="400"
+                step="50"
+                value={config.size}
+                onChange={(e) => updateConfig('size', parseInt(e.target.value))}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
