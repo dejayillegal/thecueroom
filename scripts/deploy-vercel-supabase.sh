@@ -52,7 +52,7 @@ SESSION_SECRET=TheCueRoom2024SupabaseDeployment64CharSecretKeyForProduction
 # Email (Gmail SMTP - Free)
 GMAIL_USER=your-gmail@gmail.com
 GMAIL_APP_PASSWORD=your-16-character-app-password
-FROM_EMAIL=noreply@thecueroom.xyz
+FROM_EMAIL=support@thecueroom.xyz
 ADMIN_EMAIL=admin@thecueroom.xyz
 SUPPORT_EMAIL=support@thecueroom.xyz
 

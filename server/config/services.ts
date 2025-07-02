@@ -112,7 +112,7 @@ export function getServiceConfiguration(): ServiceConfig {
     email: {
       provider: emailProvider,
       apiKey: getEmailApiKey(emailProvider),
-      from: process.env.EMAIL_FROM || 'noreply@thecueroom.com',
+      from: process.env.EMAIL_FROM || 'support@thecueroom.xyz',
       fromName: process.env.EMAIL_FROM_NAME || 'TheCueRoom',
       retryAttempts: 3,
       timeout: 30000

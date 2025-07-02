@@ -17,7 +17,7 @@ interface EmailParams {
 }
 
 export class EmailService {
-  private fromEmail = "noreply@thecueroom.com";
+  private fromEmail = "support@thecueroom.xyz";
 
   async sendEmail(params: EmailParams): Promise<boolean> {
     try {

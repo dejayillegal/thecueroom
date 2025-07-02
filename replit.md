@@ -166,7 +166,6 @@ TheCueRoom is an invite-only digital platform exclusively for techno and house m
 
 Preferred communication style: Simple, everyday language.
 
-## Admin Access
-- Admin Email: admin@thecueroom.com / Password: admin123
+- Admin Email: admin@thecueroom.xyz / Password: admin123
 - Admin Email: jmunuswa@gmail.com / Password: admin123
 - Both admins have full access to user management, content moderation, and platform administration

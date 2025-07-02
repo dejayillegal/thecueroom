@@ -64,7 +64,7 @@ SESSION_SECRET=TheCueRoom2024FreeDeploymentSecureKey64CharactersForMaxSecurity
 # Free Email (Cloudflare + Gmail)
 GMAIL_USER=your-gmail@gmail.com
 GMAIL_APP_PASSWORD=your-16-char-app-password
-FROM_EMAIL=noreply@thecueroom.xyz
+FROM_EMAIL=support@thecueroom.xyz
 ADMIN_EMAIL=admin@thecueroom.xyz
 SUPPORT_EMAIL=support@thecueroom.xyz
 

@@ -36,7 +36,7 @@ async function seed() {
   await db.insert(users).values([
     {
       id: 'admin-001',
-      email: 'admin@thecueroom.com',
+      email: 'admin@thecueroom.xyz',
       password: hashPassword('adminpass123'),
       username: 'admin_cue',
       firstName: 'Admin',
@@ -50,7 +50,7 @@ async function seed() {
     },
     {
       id: 'user-001',
-      email: 'user@thecueroom.com',
+      email: 'user@thecueroom.xyz',
       password: hashPassword('userpass123'),
       username: 'test_user',
       firstName: 'Test',
@@ -120,7 +120,7 @@ async function seed() {
   // Seed a sample support ticket
   await db.insert(supportTickets).values([
     {
-      email: 'user@thecueroom.com',
+      email: 'user@thecueroom.xyz',
       firstName: 'Test',
       ticketType: 'feedback',
       subject: 'Loving the app!',

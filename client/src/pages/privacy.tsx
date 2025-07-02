@@ -201,7 +201,7 @@ export default function Privacy() {
                 please contact us:
               </p>
               <div className="space-y-2">
-                <p className="font-medium">privacy@thecueroom.com</p>
+                <p className="font-medium">privacy@thecueroom.xyz</p>
                 <p className="text-sm text-muted-foreground">
                   We'll respond to privacy inquiries within 72 hours.
                 </p>

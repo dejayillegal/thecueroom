@@ -191,8 +191,7 @@ curl http://your-domain/api/health
 ```
 
 ### 2. Admin Account Setup
-Default admin accounts are pre-configured:
-- Email: `admin@thecueroom.com`
+- Email: `admin@thecueroom.xyz`
 - Password: `admin123`
 
 **Important**: Change admin passwords immediately after deployment.
@@ -316,9 +315,8 @@ npm restart
 
 ## 📞 Support & Contact
 
-For deployment support:
 - Technical Issues: Create GitHub issue
-- Platform Access: admin@thecueroom.com
+- Platform Access: admin@thecueroom.xyz
 - Emergency: Direct admin contact
 
 **Remember**: This platform is exclusively for verified underground electronic music artists and DJs in India.

@@ -51,7 +51,7 @@ const response = await fetch('/api/posts', {
 ### Admin Access
 
 Admin-only endpoints require the user to have admin privileges:
-- `admin@thecueroom.com`
+- `admin@thecueroom.xyz`
 - `jmunuswa@gmail.com`
 
 ## Response Format

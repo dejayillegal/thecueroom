@@ -171,7 +171,7 @@ OPENAI_API_KEY=sk-your-openai-key-here
 
 # SendGrid for email services
 SENDGRID_API_KEY=SG.your-sendgrid-key-here
-FROM_EMAIL=noreply@thecueroom.com
+FROM_EMAIL=support@thecueroom.xyz
 
 # ===========================================
 # FEATURE FLAGS
@@ -254,7 +254,7 @@ npm run db:seed
 ```
 
 This creates:
-- Admin user (admin@thecueroom.com / admin123)
+- Admin user (admin@thecueroom.xyz / admin123)
 - Sample posts and comments
 - Example gigs and events
 - Test user accounts
@@ -332,7 +332,7 @@ curl -X GET http://localhost:5000/api/login
 
 2. **Configure sender:**
    ```bash
-   FROM_EMAIL=noreply@yourdomain.com
+   FROM_EMAIL=support@yourdomain.com
    ```
 
 3. **Test email:**

@@ -171,7 +171,7 @@ Under applicable data protection laws, you have the right to:
 
 For questions about our cookie practices:
 
-**Email:** privacy@thecueroom.com  
+**Email:** privacy@thecueroom.xyz
 **Subject Line:** Cookie Policy Inquiry  
 **Platform:** Submit support ticket for cookie-related questions  
 

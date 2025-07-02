@@ -11,5 +11,5 @@ export const emailConfig = {
   adminEmail: 'admin@thecueroom.xyz',
   supportEmail: 'support@thecueroom.xyz',
   contactEmail: 'contact@thecueroom.xyz',
-  noreplyEmail: 'noreply@thecueroom.xyz',
+  noreplyEmail: 'support@thecueroom.xyz',
 };

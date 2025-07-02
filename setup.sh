@@ -136,7 +136,7 @@ if [ $CONFIGURED -eq $TOTAL ]; then
     echo "The platform will be available at: http://localhost:5000"
     echo ""
     echo "Default admin login:"
-    echo "   Email: admin@thecueroom.com"
+    echo "   Email: admin@thecueroom.xyz"
     echo "   Password: admin123"
     echo "   (Please change this password after first login)"
     echo ""
