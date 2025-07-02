@@ -288,7 +288,7 @@ npm run db:reset
 2. **Configure callback URLs:**
    - Login URL: `https://your-domain/api/login`
    - Callback URL: `https://your-domain/api/callback`
-   - Logout URL: `https://your-domain/api/logout`
+   - Logout URL: `https://your-domain/api/auth/logout`
 
 3. **Test authentication:**
    ```bash

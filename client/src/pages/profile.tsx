@@ -801,10 +801,10 @@ export default function Profile() {
               <CardTitle>Account Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
-                onClick={() => window.location.href = '/api/logout'}
+                onClick={() => window.location.href = '/api/auth/logout'}
               >
                 Log Out
               </Button>

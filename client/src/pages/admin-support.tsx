@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import Navbar from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,9 +50,55 @@ const priorityColors = {
 
 export default function AdminSupportPage() {
   const { toast } = useToast();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [showTicketDialog, setShowTicketDialog] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Redirecting to login...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+
+    if (!isLoading && isAuthenticated && !user?.isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "Admin access required",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+      return;
+    }
+  }, [isAuthenticated, isLoading, user, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="loading-pulse">Loading support dashboard...</div>
+      </div>
+    );
+  }
+
+  if (!user?.isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-destructive mb-4">Access Denied</h1>
+          <p className="text-muted-foreground">Admin privileges required</p>
+        </div>
+      </div>
+    );
+  }
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["/api/support/tickets", selectedStatus],
@@ -207,6 +256,7 @@ export default function AdminSupportPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
@@ -535,6 +585,7 @@ export default function AdminSupportPage() {
           </DialogContent>
         </Dialog>
       </div>
+      <Footer />
     </div>
   );
 }
