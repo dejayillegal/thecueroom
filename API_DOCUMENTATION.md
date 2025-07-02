@@ -35,7 +35,7 @@ TheCueRoom uses session-based authentication with Replit Auth.
 
 1. **Login**: `GET /api/login` - Redirects to Replit Auth
 2. **Callback**: `GET /api/callback` - Handles OAuth callback
-3. **Logout**: `GET /api/logout` - Clears session and redirects
+3. **Logout**: `POST /api/auth/logout` - Clears session
 
 ### Authenticated Requests
 
@@ -152,9 +152,9 @@ Redirects to Replit Auth login page.
 
 #### Logout
 ```http
-GET /api/logout
+POST /api/auth/logout
 ```
-Clears session and redirects to logout page.
+Clears session and returns a success message.
 
 ### Users Endpoints
 

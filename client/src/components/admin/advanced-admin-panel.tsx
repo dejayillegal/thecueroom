@@ -57,6 +57,7 @@ export default function AdvancedAdminPanel() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("spotlight");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState("");
 
   // Data queries
   const { data: users } = useQuery({
@@ -487,11 +488,21 @@ export default function AdvancedAdminPanel() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!bulkAction || selectedUsers.length === 0}
+                        onClick={() =>
+                          bulkUserActionMutation.mutate({
+                            action: bulkAction,
+                            userIds: selectedUsers,
+                          })
+                        }
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Bulk Actions
                       </Button>
-                      <Select>
+                      <Select value={bulkAction} onValueChange={setBulkAction}>
                         <SelectTrigger className="w-48">
                           <SelectValue placeholder="Select action" />
                         </SelectTrigger>

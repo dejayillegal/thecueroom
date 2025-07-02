@@ -272,8 +272,8 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                         <DropdownMenuSeparator className="bg-gray-700" />
                       </>
                     )}
-                    <DropdownMenuItem 
-                      onClick={() => window.location.href = '/api/logout'}
+                    <DropdownMenuItem
+                      onClick={() => window.location.href = '/api/auth/logout'}
                       className="flex items-center space-x-3 p-3 hover:bg-gray-800 text-gray-300 hover:text-white"
                     >
                       <LogOut className="w-5 h-5" />
@@ -392,8 +392,8 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                           </div>
                         </Link>
                       )}
-                      <div 
-                        onClick={() => window.location.href = '/api/logout'}
+                      <div
+                        onClick={() => window.location.href = '/api/auth/logout'}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 text-gray-300 hover:text-white rounded-lg mx-2 cursor-pointer"
                       >
                         <LogOut className="w-5 h-5" />

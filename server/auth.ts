@@ -98,7 +98,7 @@ export async function sendPasswordResetEmail(email: string, firstName: string, t
       return true;
     }
     
-    const { sendPasswordResetEmail: sendEmail } = await import('./services/email.js');
+    const { sendPasswordResetEmail: sendEmail } = await import('./services/email');
     return await sendEmail(email, firstName, tempPassword);
   } catch (error) {
     console.error('Error sending password reset email:', error);
@@ -432,7 +432,13 @@ export function setupAuth(app: Express) {
   app.post("/api/auth/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
-      res.json({ message: "Logged out successfully" });
+
+      req.session.destroy((sessionErr) => {
+        if (sessionErr) return next(sessionErr);
+
+        res.clearCookie("connect.sid");
+        res.json({ message: "Logged out successfully" });
+      });
     });
   });
 

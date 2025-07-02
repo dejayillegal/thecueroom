@@ -16,7 +16,7 @@ class EmailService {
     try {
       // Gmail SMTP configuration (free option)
       if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
             user: process.env.GMAIL_USER,
@@ -30,7 +30,7 @@ class EmailService {
 
       // Outlook SMTP configuration (free alternative)
       if (process.env.OUTLOOK_USER && process.env.OUTLOOK_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           service: 'hotmail',
           auth: {
             user: process.env.OUTLOOK_USER,
@@ -44,7 +44,7 @@ class EmailService {
 
       // Zoho SMTP configuration (free alternative)
       if (process.env.ZOHO_USER && process.env.ZOHO_PASSWORD) {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           host: 'smtp.zoho.com',
           port: 587,
           secure: false,
@@ -60,7 +60,7 @@ class EmailService {
 
       // Development mode fallback (console logging)
       if (process.env.NODE_ENV === 'development') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           streamTransport: true,
           newline: 'unix',
           buffer: true
