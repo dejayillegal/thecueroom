@@ -4,7 +4,7 @@
   "alias": ["thecueroom.xyz", "www.thecueroom.xyz"],
   "builds": [
     {
-      "src": "dist/public/**",
+      "src": "dist/**",
       "use": "@vercel/static"
     },
     {

@@ -22,15 +22,15 @@ try {
   process.exit(1);
 }
 
-// Step 3: Copy CNAME to dist/public
+// Step 3: Copy CNAME to dist
 console.log('3. Setting up GitHub Pages deployment...');
-if (!fs.existsSync('dist/public')) {
-  fs.mkdirSync('dist/public', { recursive: true });
+if (!fs.existsSync('dist')) {
+  fs.mkdirSync('dist/', { recursive: true });
 }
 
 // Copy CNAME for GitHub Pages
 if (fs.existsSync('public/CNAME')) {
-  fs.copyFileSync('public/CNAME', 'dist/public/CNAME');
+  fs.copyFileSync('public/CNAME', 'dist/CNAME');
   console.log('   ✓ Copied CNAME for GitHub Pages');
 }
 
@@ -44,8 +44,8 @@ const deploymentInfo = {
   buildType: 'static'
 };
 
-fs.writeFileSync('dist/public/deployment-info.json', JSON.stringify(deploymentInfo, null, 2));
+fs.writeFileSync('dist/deployment-info.json', JSON.stringify(deploymentInfo, null, 2));
 
 console.log('\n✅ Static build completed successfully!');
-console.log('📁 Output: ./dist/public');
+console.log('📁 Output: dist');
 console.log('🌐 Ready for GitHub Pages deployment\n');

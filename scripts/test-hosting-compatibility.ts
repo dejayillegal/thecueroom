@@ -35,7 +35,7 @@ class HostingCompatibilityTester {
       name: 'Vercel + Supabase',
       requirements: ['Node.js 18+', 'React build', 'PostgreSQL compatible'],
       buildCommand: 'npm run build',
-      deployFiles: ['dist/index.js', 'dist/public', 'vercel.json'],
+      deployFiles: ['dist/index.js', 'dist', 'vercel.json'],
       envVars: ['DATABASE_URL', 'SESSION_SECRET', 'GMAIL_USER']
     },
     {
@@ -49,7 +49,7 @@ class HostingCompatibilityTester {
       name: 'GitHub Pages + Vercel + Neon',
       requirements: ['Static build', 'API routes', 'PostgreSQL'],
       buildCommand: 'npm run build',
-      deployFiles: ['dist/CNAME', 'dist/.nojekyll', 'dist/public'],
+      deployFiles: ['dist/CNAME', 'dist/.nojekyll', 'dist'],
       envVars: ['DATABASE_URL', 'SESSION_SECRET']
     },
     {
@@ -113,7 +113,7 @@ class HostingCompatibilityTester {
       this.log('Build', 'Vite production build', 'PASS', 'Build completed successfully');
 
       // Check build outputs
-      const buildOutputs = ['dist/public', 'dist/index.js'];
+      const buildOutputs = ['dist', 'dist/index.js'];
       for (const output of buildOutputs) {
         const exists = existsSync(output);
         this.log('Build', `Check ${output}`, exists ? 'PASS' : 'FAIL',

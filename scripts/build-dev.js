@@ -33,8 +33,8 @@ try {
 
 // Step 4: Create 404.html for SPA routing on GitHub Pages
 console.log('4. Setting up SPA routing...');
-const indexPath = 'dist/public/index.html';
-const notFoundPath = 'dist/public/404.html';
+const indexPath = 'dist/index.html';
+const notFoundPath = 'dist/404.html';
 
 if (fs.existsSync(indexPath)) {
   fs.copyFileSync(indexPath, notFoundPath);
@@ -42,12 +42,12 @@ if (fs.existsSync(indexPath)) {
 }
 
 // Step 5: Create .nojekyll file
-fs.writeFileSync('dist/public/.nojekyll', '');
+fs.writeFileSync('dist/.nojekyll', '');
 console.log('   ✓ Created .nojekyll file');
 
 // Step 6: Update base href in HTML files
 console.log('5. Updating base paths...');
-const htmlFiles = ['dist/public/index.html', 'dist/public/404.html'];
+const htmlFiles = ['dist/ndex.html', 'dist/404.html'];
 htmlFiles.forEach(file => {
   if (fs.existsSync(file)) {
     let content = fs.readFileSync(file, 'utf8');
@@ -68,9 +68,9 @@ const deploymentInfo = {
   repository: repoName
 };
 
-fs.writeFileSync('dist/public/deployment-info.json', JSON.stringify(deploymentInfo, null, 2));
+fs.writeFileSync('dist/deployment-info.json', JSON.stringify(deploymentInfo, null, 2));
 
 console.log('\n✅ Development build completed successfully!');
-console.log(`📁 Output: ./dist/public`);
+console.log(`📁 Output: dist`);
 console.log(`🌐 Will be available at: https://[username].github.io/${repoName}/`);
 console.log('🔧 Ready for GitHub Pages development deployment\n');

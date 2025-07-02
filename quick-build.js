@@ -18,7 +18,7 @@ try {
   execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { stdio: 'inherit' });
   
   console.log('✅ Build completed successfully!');
-  console.log('📁 Frontend: ./dist/public');
+  console.log('📁 Frontend: dist');
   console.log('📁 Backend: ./dist/index.js');
   
 } catch (error) {

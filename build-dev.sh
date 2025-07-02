@@ -11,4 +11,4 @@ echo "2. Building frontend..."
 npm run build
 
 echo "✅ Build completed successfully!"
-echo "📁 Output directory: ./dist/public"
+echo "📁 Output directory: dist"

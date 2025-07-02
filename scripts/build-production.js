@@ -39,12 +39,12 @@ filesToCopy.forEach(file => {
 
 // Step 5: Create GitHub Pages specific files
 console.log('5. Setting up GitHub Pages deployment...');
-if (!fs.existsSync('dist/public')) {
-  fs.mkdirSync('dist/public', { recursive: true });
+if (!fs.existsSync('dist/')) {
+  fs.mkdirSync('dist/', { recursive: true });
 }
 
 // Copy CNAME to public directory for GitHub Pages
-fs.copyFileSync('CNAME', 'dist/public/CNAME');
+fs.copyFileSync('CNAME', 'dist/CNAME');
 
 // Step 6: Create deployment package
 console.log('6. Creating deployment package...');
@@ -67,7 +67,7 @@ fs.writeFileSync('dist/deployment-info.json', JSON.stringify(deploymentInfo, nul
 
 console.log('\n✅ Production build completed successfully!');
 console.log('\nDeployment Options:');
-console.log('📁 Frontend: ./dist/public (GitHub Pages)');
+console.log('📁 Frontend: dist (GitHub Pages)');
 console.log('⚡ API: ./dist/server.js (Vercel Functions)');
 console.log('🌐 Domain: thecueroom.xyz');
 console.log('\nNext steps:');

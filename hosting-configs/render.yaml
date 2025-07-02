@@ -34,7 +34,7 @@ services:
   - type: static
     name: thecueroom-frontend
     buildCommand: npm install && npm run build && node scripts/build-static.js
-    staticPublishPath: ./dist
+    staticPublishPath: dist
     envVars:
       - key: NODE_ENV
         value: production

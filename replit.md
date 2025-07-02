@@ -106,7 +106,7 @@ TheCueRoom is an invite-only digital platform exclusively for techno and house m
 - **Database**: Neon development instance
 
 ### Production Build
-1. **Frontend**: Vite build → Static assets in `dist/public`
+1. **Frontend**: Vite build → Static assets in `dist`
 2. **Backend**: ESBuild compilation → Node.js bundle in `dist`
 3. **Database**: Drizzle migrations applied to production instance
 4. **Environment**: Production environment variables configured
