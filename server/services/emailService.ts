@@ -1,12 +1,12 @@
 import { MailService } from '@sendgrid/mail';
 import { randomBytes } from 'crypto';
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
-}
+// if (!process.env.SENDGRID_API_KEY) {
+//   throw new Error("SENDGRID_API_KEY environment variable must be set");
+// }
 
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY);
+// const mailService = new MailService();
+// mailService.setApiKey(process.env.SENDGRID_API_KEY);
 
 interface EmailParams {
   to: string;

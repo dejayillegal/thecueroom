@@ -148,8 +148,6 @@ DATABASE_URL=postgresql://username:password@localhost:5432/thecueroom
 # Individual database components (auto-populated by Replit)
 PGHOST=localhost
 PGPORT=5432
-PGUSER=username
-PGPASSWORD=password
 PGDATABASE=thecueroom
 
 # ===========================================
