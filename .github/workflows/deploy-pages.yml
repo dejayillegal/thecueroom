@@ -1,0 +1,60 @@
+name: 📦 Build & Deploy to GitHub Pages
+
+# Trigger on pushes to main (or change to your default branch)
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  pages: write            # Allow creating/updating GitHub Pages
+  id-token: write         # Required by configure-pages
+  contents: read          # To read the repo contents
+
+jobs:
+  build:
+    name: Build Client
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install & build
+      - name: Install dependencies & build
+        run: |
+          npm ci
+          npm run build:static
+
+      # 4. Upload the built site as an artifact
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/public
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # 5. Configure Pages (sets up the gh-pages branch for you)
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v4
+
+      # 6. Deploy the artifact to gh-pages
+      - name: Deploy artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # 7. (Optional) Output the site URL
+      - name: Show site URL
+        run: echo "Your site is live at ${{ steps.deployment.outputs.page_url }}"
+
