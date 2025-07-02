@@ -1,0 +1,11 @@
+{
+  "name": "thecueroom-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:static": "npm run build",
+    "preview": "vite preview"
+  }
+}
