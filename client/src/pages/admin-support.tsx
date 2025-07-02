@@ -100,7 +100,7 @@ export default function AdminSupportPage() {
     );
   }
 
-  const { data: tickets = [], isLoading } = useQuery({
+  const { data: tickets = [], isLoading: ticketsLoading } = useQuery({
     queryKey: ["/api/support/tickets", selectedStatus],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -330,7 +330,7 @@ export default function AdminSupportPage() {
 
         {/* Support Tickets */}
         <div className="space-y-4">
-          {isLoading ? (
+          {ticketsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
               <p className="mt-2 text-muted-foreground">Loading support tickets...</p>
