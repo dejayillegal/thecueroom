@@ -1,45 +1,42 @@
-name: 📦 Build & Deploy to GitHub Pages
+# .github/workflows/deploy.yml
+name: Deploy TheCueRoom to GitHub Pages
 
 on:
   push:
     branches: [ main ]
 
 permissions:
-  pages:    write    # allow publishing
-  id-token: write    # for configure-pages
-  contents: read     # to checkout
+  pages:    write      # allow Pages modifications
+  id-token: write      # required by configure-pages
+  contents: read       # to read your repo
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build static site
-        run: npm run build:static
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - run: npm ci
+      - run: npm run build:static
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist       # ← must match outDir above
+          path: dist
 
-      - name: Deploy to gh-pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      # (optional) you can also set a URL if you like:
+      # url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Show site URL
-        run: echo "🎉 Site is live at ${{ steps.deployment.outputs.page_url }}"
+        run: echo "🎉 Deployed to ${{ steps.deployment.outputs.page_url }}"
