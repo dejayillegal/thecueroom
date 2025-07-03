@@ -15,6 +15,13 @@ import { emailService } from "./services/emailService";
 import { bandcampService } from "./services/bandcampService";
 import { spotifyService } from "./services/spotifyService";
 import { memeService } from "./services/memeService";
+import { performComprehensiveHealthCheck } from './utils/healthChecks'
+import {
+  checkDatabaseHealth,
+  checkEmailHealth,
+  checkAIHealth,
+  checkStorageHealth,
+} from './utils/healthChecks'
 
 const isAdmin = async (req: any, res: any, next: any) => {
   const user = req.user;
@@ -2254,86 +2261,40 @@ Make it engaging and authentic to underground music culture. Respond with only a
   });
 
   // Health check endpoints
-  app.get('/api/health', async (req, res) => {
+  app.get('/api/health', async (_req, res) => {
     try {
-      const { performComprehensiveHealthCheck } = await import('./utils/healthChecks');
-      const healthCheck = await performComprehensiveHealthCheck();
-      
-      const statusCode = healthCheck.overall === 'healthy' ? 200 : 
-                        healthCheck.overall === 'degraded' ? 200 : 503;
-      
-      res.status(statusCode).json(healthCheck);
-    } catch (error) {
-      res.status(503).json({ 
+      const report = await performComprehensiveHealthCheck()
+      console.log('🩺 Health report:', JSON.stringify(report, null, 2))
+      const code = report.overall === 'unhealthy' ? 503 : 200
+      res.status(code).json(report)
+    } catch (err: any) {
+      console.error('🔴 Health check failed completely:', err)
+      res.status(503).json({
         overall: 'unhealthy',
-        error: error.message,
+        error: err.message,
         timestamp: new Date().toISOString()
-      });
+      })
     }
   });
 
-  app.get('/api/health/database', async (req, res) => {
-    try {
-      const { checkDatabaseHealth } = await import('./utils/healthChecks');
-      const result = await checkDatabaseHealth();
-      const statusCode = result.status === 'healthy' ? 200 : 503;
-      res.status(statusCode).json(result);
-    } catch (error) {
-      res.status(503).json({
-        service: 'database',
-        status: 'unhealthy',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
+  app.get('/api/health/database', async (_req, res) => {
+    const result = await checkDatabaseHealth()
+    res.status(result.status === 'healthy' ? 200 : 503).json(result)
   });
 
-  app.get('/api/health/email', async (req, res) => {
-    try {
-      const { checkEmailHealth } = await import('./utils/healthChecks');
-      const result = await checkEmailHealth();
-      const statusCode = result.status === 'healthy' ? 200 : 503;
-      res.status(statusCode).json(result);
-    } catch (error) {
-      res.status(503).json({
-        service: 'email',
-        status: 'unhealthy',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
+  app.get('/api/health/email', async (_req, res) => {
+  const result = await checkEmailHealth()
+  res.status(result.status === 'healthy' ? 200 : 503).json(result)
   });
 
-  app.get('/api/health/ai', async (req, res) => {
-    try {
-      const { checkAIHealth } = await import('./utils/healthChecks');
-      const result = await checkAIHealth();
-      const statusCode = result.status === 'healthy' ? 200 : 503;
-      res.status(statusCode).json(result);
-    } catch (error) {
-      res.status(503).json({
-        service: 'ai',
-        status: 'unhealthy',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
+  app.get('/api/health/ai', async (_req, res) => {
+  const result = await checkAIHealth()
+  res.status(result.status === 'healthy' ? 200 : 503).json(result)
   });
 
-  app.get('/api/health/storage', async (req, res) => {
-    try {
-      const { checkStorageHealth } = await import('./utils/healthChecks');
-      const result = await checkStorageHealth();
-      const statusCode = result.status === 'healthy' ? 200 : 503;
-      res.status(statusCode).json(result);
-    } catch (error) {
-      res.status(503).json({
-        service: 'storage',
-        status: 'unhealthy',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
+  app.get('/api/health/storage', async (_req, res) => {
+  const result = await checkStorageHealth()
+  res.status(result.status === 'healthy' ? 200 : 503).json(result)
   });
 
   // Admin settings routes
