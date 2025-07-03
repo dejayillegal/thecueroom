@@ -1,58 +1,65 @@
 name: 🚨🔋 Deploy TheCueRoom to GitHub Pages ✅✅✅
 
+# Trigger on pushes to your main branch
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: read      # to read your repo
+  pages: write        # to push to gh-pages
+  id-token: write     # required by configure-pages
 
 jobs:
   build:
+    name: Build Client
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build for production
-      run: npm run build:static
-      env:
-        VITE_API_URL: https://thecueroom-api.vercel.app/api
-        VITE_DOMAIN: thecueroom.xyz
-        
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './dist'
+      # 1. Check out your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install Node and dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+
+      # 3. Build your static site
+      - name: Build static site
+        run: npm run build:static
+
+      # 4. Upload the dist/ folder as the Pages artifact
+      - name: Upload Pages artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: github-pages
+
     steps:
-      - name: Deploy to GitHub Pages
+      # 5. Configure the gh-pages branch for you
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v4
+
+      # 6. Deploy the artifact you just built
+      - name: Deploy artifact
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_id: ${{ steps.upload.outputs.artifact_id }}
+
+      # 7. (Optional) Print the live URL
+      - name: Show site URL
+        run: echo "Your site is live at ${{ steps.deployment.outputs.page_url }}"
