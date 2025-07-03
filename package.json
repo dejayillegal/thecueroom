@@ -10,7 +10,7 @@
       "db:push":      "drizzle-kit push",
       "db:studio":    "drizzle-kit studio",
       "db:seed":      "tsx drizzle/seed.ts",
-      "start":        "NODE_ENV=production node dist/index.js"
+      "start":        "NODE_ENV=production tsx dist/index.ts"
     },
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
