@@ -3,15 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    // Compile only your server-side TS → JS
-    "build:server": "tsc --project tsconfig.server.json",
-    // Build your React/Vite client into dist/public
+    "build:server": "tsc -p tsconfig.server.json",
     "build:client": "vite build",
-    // Do both back- and front-end builds
     "build": "npm run build:server && npm run build:client",
-    // Run the production server
     "start": "node dist/server/index.js",
-    // Developer mode: watch server TS + run Vite dev server
     "dev": "concurrently \"tsc --project tsconfig.server.json --watch\" \"vite\"",
     "preview": "vite preview",
     "check": "tsc",
