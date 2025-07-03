@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build:server": "swc server -d dist/server --module-type commonjs && swc shared -d dist/shared --module-type commonjs",
+    "build:server": "swc server -d dist/server && swc shared -d dist/shared",
     "build:client": "vite build",
     "build:static": "npm run build:client",
     "build": "npm run build:server && npm run build:client",
