@@ -6,6 +6,7 @@
     "build:server": "tsc -p tsconfig.server.json",
     "build:client": "vite build",
     "build": "npm run build:server && npm run build:client",
+    "build:static": "node scripts/build-static.js",
     "start": "node dist/server/index.js",
     "dev": "concurrently \"tsc --project tsconfig.server.json --watch\" \"vite\"",
     "preview": "vite preview",

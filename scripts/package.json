@@ -1,8 +1,7 @@
-// /server/package.json
 {
   "name": "thecueroom-server",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc -p ../tsconfig.server.json",
     "dev": "tsc -p ../tsconfig.server.json --watch",
