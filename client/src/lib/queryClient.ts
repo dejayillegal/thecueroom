@@ -26,10 +26,10 @@ const getApiBaseUrl = () => {
     }
     
     // GitHub Pages preview or other environments
-    return import.meta.env.VITE_API_URL || 'https://api.thecueroom.xyz';
+    return import.meta.env.VITE_API_BASE_URL!;
   }
   
-  return 'http://localhost:5000';
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 };
 
 export async function apiRequest(

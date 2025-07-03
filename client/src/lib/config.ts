@@ -2,7 +2,7 @@
 export const config = {
   domain: 'thecueroom.xyz',
   siteUrl: 'https://thecueroom.xyz',
-  apiUrl: import.meta.env.VITE_API_URL || 'https://api.thecueroom.xyz',
+  apiUrl: import.meta.env.VITE_API_BASE_URL || 'https://thecueroom-api.onrender.com',
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
 };
