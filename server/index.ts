@@ -60,11 +60,21 @@ app.use((req, res, next) => {
   // Serve the app on port 5050.
   // This serves both the API and the client and
   // is the only port that is not firewalled.
-  const port = 5050;
-  const host = "127.0.0.1";
+//   const port = 5050;
+//   const host = "127.0.0.1";
+
+//   const server = http.createServer(app);
+//   server.listen(port, host, () => {
+//     log(`✅ Server is running at http://${host}:${port}`);
+//   });
+// 
+ // Pull the port from Render (or default to 5050)
+  const port = Number(process.env.PORT) || 5050;
+  // Bind to all IPv4 interfaces so Render (and other PaaS) can reach it
+  const host = "0.0.0.0";
 
   const server = http.createServer(app);
   server.listen(port, host, () => {
     log(`✅ Server is running at http://${host}:${port}`);
-  });
+  })
 })();
