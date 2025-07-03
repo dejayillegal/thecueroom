@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build:server": "swc server -d dist/server && swc shared -d dist/shared",
+    "build:server": "swc server -d dist/server && swc shared -d dist/shared && swc vite.config.ts -d dist",
     "build:client": "vite build",
     "build:static": "npm run build:client",
     "build": "npm run build:server && npm run build:client",
