@@ -11,8 +11,7 @@
     "dev": "concurrently \"swc server -d dist/server --watch\" \"vite\"",
     "preview": "vite preview",
     "check": "tsc",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate":  "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx drizzle/seed.ts"
   },
@@ -152,6 +151,7 @@
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
     "concurrently": "^8.2.2",
+    "dotenv": "^17.0.1",
     "drizzle-kit": "^0.30.4",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",
