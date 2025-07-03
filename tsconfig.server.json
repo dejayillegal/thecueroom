@@ -1,18 +1,22 @@
-// tsconfig.server.json
 {
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true,          // ignore all node_modules type errors
+    "skipLibCheck": true,
+    "strict": false,
     "resolveJsonModule": true,
-    "rootDir": ".",                // compile both server & shared
-    "outDir": "dist",
-    "baseUrl": ".",                // for paths mapping
+    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["shared/*"]    // map @shared/schema → shared/schema.ts
-    }
+      "@shared/*": ["shared/*"]
+    },
+    "outDir": "dist",
+    "rootDir": "."
   },
-  "include": ["server/**/*.ts", "shared/**/*.ts"]
+  "include": [
+    "server/**/*.ts",
+    "shared/**/*.ts",
+    "global.d.ts"
+  ]
 }
