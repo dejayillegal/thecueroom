@@ -35,7 +35,8 @@ jobs:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     needs: build
-
+    environment:
+      name: github-pages
     steps:
       # 5. Configure Pages (sets up the gh-pages branch for you)
       - name: Configure GitHub Pages

@@ -4,9 +4,9 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "rootDir": "server",
-    "outDir": "dist/server",
+    "rootDir": "shared",
+    "outDir": "dist/shared",
     "declaration": false
   },
-  "include": ["server/**/*.ts"]
+  "include": ["shared/**/*.ts"]
 }
