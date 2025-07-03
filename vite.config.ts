@@ -8,11 +8,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client/src")
-    }
+      "@": path.resolve(__dirname, "client/src"),
+    },
   },
   build: {
-    outDir: "../dist/public",
-    emptyOutDir: true
-  }
+    outDir: "../dist/client",   // <— note ../dist/client
+    emptyOutDir: true,
+  },
 });
