@@ -1,9 +1,10 @@
+// vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  root: "client",              // ← your React app lives under “client/”
+  root: "client",
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,7 +12,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: "../dist",         // ← everything ends up in <repo>/dist
+    outDir: "../dist/public",
     emptyOutDir: true
   }
 });

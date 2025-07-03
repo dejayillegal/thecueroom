@@ -1,20 +1,25 @@
-  {
-    "name": "thecueroom",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-     "build:static": "vite build",
-      "dev":          "vite",
-      "preview":      "vite preview",
-      "check":        "tsc",
-      "db:push":      "drizzle-kit push",
-      "db:studio":    "drizzle-kit studio",
-      "db:seed":      "tsx drizzle/seed.ts",
-      "start":        "NODE_ENV=production tsx dist/index.ts"
-    },
+{
+  "name": "thecueroom",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    // Compile only your server-side TS → JS
+    "build:server": "tsc --project tsconfig.server.json",
+    // Build your React/Vite client into dist/public
+    "build:client": "vite build",
+    // Do both back- and front-end builds
+    "build": "npm run build:server && npm run build:client",
+    // Run the production server
+    "start": "node dist/server/index.js",
+    // Developer mode: watch server TS + run Vite dev server
+    "dev": "concurrently \"tsc --project tsconfig.server.json --watch\" \"vite\"",
+    "preview": "vite preview",
+    "check": "tsc",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx drizzle/seed.ts"
+  },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "tsx": "^4.19.1",
     "@anthropic-ai/sdk": "^0.37.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
@@ -122,7 +127,8 @@
     "ws": "^8.18.0",
     "xml2js": "^0.6.2",
     "zod": "^3.24.2",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^3.4.0",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "@replit/vite-plugin-cartographer": "^0.2.7",
@@ -140,14 +146,12 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.0",
     "drizzle-kit": "^0.30.4",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "typescript": "5.6.3",
     "vite": "^5.4.19"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.8"
   }
 }
