@@ -28,7 +28,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # 3. Build your static site
       - name: Build static site
@@ -39,7 +39,7 @@ jobs:
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: './dist'
 
   deploy:
     name: Deploy to GitHub Pages
