@@ -5,6 +5,7 @@
   "scripts": {
     "build:server": "swc server -d dist/server && swc shared -d dist/shared",
     "build:client": "vite build",
+    "build:static": "npm run build:client",
     "build": "npm run build:server && npm run build:client",
     "start": "NODE_ENV=production node dist/server/index.js",
     "dev": "concurrently \"swc server -d dist/server --watch\" \"vite\"",
