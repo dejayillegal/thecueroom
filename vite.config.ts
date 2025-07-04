@@ -6,6 +6,7 @@ import path from "path";
 export default defineConfig({
   base: '/thecueroom/',    // ← add this line
   root: "client",
+  envDir: path.resolve(__dirname),
   plugins: [react()],
   resolve: {
     alias: {
