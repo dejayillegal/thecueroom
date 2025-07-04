@@ -10,23 +10,8 @@ async function throwIfResNotOk(res: Response) {
 // Get API base URL for free deployment stack
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    // Production: Use Vercel serverless API
-    if (window.location.hostname === 'thecueroom.xyz') {
-      return 'https://api.thecueroom.xyz';
-    }
-    
-    // Development: Local server
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return window.location.origin;
-    }
-    
-    // Replit development environment
-    if (window.location.hostname.includes('replit.dev')) {
-      return window.location.origin;
-    }
-    
-    // GitHub Pages preview or other environments
-    return import.meta.env.VITE_API_BASE_URL!;
+    // try VITE_API_BASE_URL first
+    return import.meta.env.VITE_API_BASE_URL || window.location.origin
   }
   
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
