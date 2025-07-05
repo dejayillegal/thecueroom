@@ -365,3 +365,25 @@ class EmailService {
 }
 
 export const emailService = new EmailService();
+
+// ─── Top‐level exports so you can import directly ────────────────────────────
+export const sendVerificationEmail = (
+  email: string,
+  firstName: string,
+  verificationLink: string
+): Promise<boolean> =>
+  emailService.sendVerificationEmail(email, firstName, verificationLink);
+
+export const sendPasswordResetEmail = (
+  email: string,
+  firstName: string,
+  tempPassword: string
+): Promise<boolean> =>
+  emailService.sendPasswordResetEmail(email, firstName, tempPassword);
+
+export const sendWelcomeEmail = (
+  email: string,
+  firstName: string
+): Promise<boolean> =>
+  emailService.sendWelcomeEmail(email, firstName);
+// ─────────────────────────────────────────────────────────────────────────────

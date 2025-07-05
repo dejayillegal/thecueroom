@@ -98,8 +98,7 @@ export async function sendPasswordResetEmail(email: string, firstName: string, t
       return true;
     }
     
-    const { sendPasswordResetEmail: sendEmail } = await import('./services/email');
-    return await sendEmail(email, firstName, tempPassword);
+    return await sendPasswordResetEmail(email, firstName, tempPassword);
   } catch (error) {
     console.error('Error sending password reset email:', error);
     

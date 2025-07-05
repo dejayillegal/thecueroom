@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireAdmin, hashPassword, generateTemporaryPassword, sendPasswordResetEmail } from "./auth";
-import { insertPostSchema, insertCommentSchema, insertMemeSchema, insertGigSchema, insertPlaylistSchema, insertMusicProfileSchema, insertTrackSchema, insertCuratedPlaylistSchema, insertPostReactionSchema } from "@shared/schema";
+import { insertPostSchema, insertCommentSchema, insertMemeSchema, insertGigSchema, insertPlaylistSchema, insertMusicProfileSchema, insertTrackSchema, insertCuratedPlaylistSchema, insertPostReactionSchema, InsertPostInput } from "@shared/schema";
 import { z } from "zod";
 import { aiService } from "./services/aiService";
 import { newsService } from "./services/newsService";
@@ -69,11 +69,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log moderation action
       await storage.createModerationLog({
-        targetType: 'user',
-        targetId: id,
-        action: isSuspended ? 'suspend' : 'unsuspend',
+        targetType:      'user',
+        targetId:        id,
+        action:          isSuspended ? 'suspend' : 'unsuspend',
         reason,
-        moderatorId: (req.user as any)?.id,
+        details:         `User ${isSuspended ? 'suspended' : 'unsuspended'} by admin via PATCH /api/users/${id}/suspension`,
+        moderatorId:     (req.user as any)?.id,
         isAutoModerated: false,
       });
       
@@ -102,7 +103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         targetId: id,
         action: 'delete',
         reason: 'User deleted by admin',
-        moderatorId: (req.user as any)?.id,
+        details: 'Deleted by admin via /api/users/:id',   // ← new, non-nullable
+        moderatorId: req.user.id,
         isAutoModerated: false,
       });
       
@@ -132,7 +134,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         targetId: id,
         action: 'password_reset',
         reason: 'Password reset by admin',
-        moderatorId: (req.user as any)?.id,
+        details: 'Password reset by admin via /api/users/:id',   // ← new, non-nullable
+        moderatorId: req.user.id,
         isAutoModerated: false,
       });
       
@@ -188,10 +191,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         targetType: 'user',
         targetId: id,
         action: 'account_activation',
-        reason: forceActivate ? 'Account manually activated by admin (forced)' : 'Account manually activated by admin',
-        moderatorId: adminId,
+        reason: forceActivate
+          ? 'Account manually activated by admin (forced)'
+          : 'Account manually activated by admin',
+        details: forceActivate
+          ? 'Activated (forced) via PATCH /api/users/:id/activate'
+          : 'Activated via PATCH /api/users/:id/activate',
+        moderatorId: req.user.id,
         isAutoModerated: false,
       });
+
+
       
       await loggingService.logVerification(id, adminId, req);
       
@@ -230,11 +240,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log the action
       await storage.createModerationLog({
-        targetType: 'user',
-        targetId: id,
-        action: 'email_verification',
-        reason: 'Email manually verified by admin',
-        moderatorId: adminId,
+        targetType:      'user',
+        targetId:        id,
+        action:          'email_verification',
+        reason:          'Email manually verified by admin',
+        details:         'Manually verified via PATCH /api/users/:id/verify-email by admin',
+        moderatorId:     adminId,
         isAutoModerated: false,
       });
       
@@ -311,7 +322,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/posts', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const postData = insertPostSchema.parse({ ...req.body, userId });
+      const raw = { ...req.body, userId: req.user.id };
+      const postData = insertPostSchema.parse(raw) as InsertPostInput;
       
       // Content moderation
       const moderationResult = await moderationService.moderateContent(postData.content);
@@ -706,10 +718,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log admin action
       await storage.createModerationLog({
-        moderatorId: adminId,
-        action: 'support_ticket_updated',
-        details: `Updated support ticket #${id} - Status: ${status}, Priority: ${priority}`,
-        severity: 'info'
+        targetType:      'support_ticket',
+        targetId:        id,
+        action:          'update',
+        reason:          `Support ticket #${id} updated`,
+        details:         `Updated support ticket #${id} (Status: ${status}, Priority: ${priority}) via PATCH /api/support/tickets/${id}`,
+        moderatorId:     adminId,
+        isAutoModerated: false,
       });
 
       res.json(updatedTicket);
@@ -728,12 +743,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log admin action
       await storage.createModerationLog({
-        moderatorId: adminId,
-        action: 'support_ticket_deleted',
-        details: `Deleted support ticket #${id}`,
-        severity: 'warning'
+        targetType:      'support_ticket',
+        targetId:        id,
+        action:          'delete',
+        reason:          `Support ticket #${id} deleted`,
+        details:         `Deleted support ticket #${id} via DELETE /api/support/tickets/${id}`,
+        moderatorId:     adminId,
+        isAutoModerated: false,
       });
-
+      
       res.json({ message: 'Support ticket deleted successfully' });
     } catch (error) {
       console.error('Error deleting support ticket:', error);
@@ -785,12 +803,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log admin action
       await storage.createModerationLog({
-        targetType: 'user',
-        targetId: user.id,
-        action: 'admin_password_reset',
-        reason: `Admin reset password for user ${email} via support ticket #${ticketId}`,
-        moderatorId: adminId,
-        isAutoModerated: false
+        targetType:      'user',
+        targetId:        user.id,
+        action:          'admin_password_reset',
+        reason:          `Admin reset password for user ${email} via support ticket #${ticketId}`,
+        details:         `Admin password reset via POST /api/auth/admin-reset-password for ${email} (ticket #${ticketId})`,
+        moderatorId:     adminId,
+        isAutoModerated: false,
       });
 
       res.json({ 
@@ -1592,6 +1611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         targetId,
         action,
         reason,
+        details:         `Applied moderation "${action}" to ${targetType} ${targetId} via /api/moderation/moderate`,
         moderatorId,
         isAutoModerated: false,
       });
@@ -1604,36 +1624,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Music Platform Integration routes
-  app.post('/api/music/profiles', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const profileData = insertMusicProfileSchema.parse({ ...req.body, userId });
-      
-      // Validate platform URL
-      const validation = await musicPlatformService.validatePlatformURL(profileData.profileUrl);
-      if (!validation.isValid) {
-        return res.status(400).json({ message: "Invalid platform URL" });
-      }
-      
-      // Fetch additional platform data
-      const platformData = await musicPlatformService.fetchArtistData(validation.platform, validation.username);
-      
-      const profile = await storage.createMusicProfile({
-        ...profileData,
-        platform: validation.platform,
-        username: validation.username,
-        metadata: platformData
-      });
-      
-      res.json(profile);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid profile data", errors: error.errors });
-      }
-      console.error("Error creating music profile:", error);
-      res.status(500).json({ message: "Failed to create music profile" });
+ app.post("/api/music/profiles", requireAuth, async (req, res) => {
+  try {
+    const { profileUrl } = req.body as { profileUrl: string };
+    const validation = await musicPlatformService.validatePlatformURL(profileUrl);
+    if (!validation.isValid) {
+      return res.status(400).json({ message: "Invalid platform URL" });
     }
-  });
+
+    // 1) Validate only the things coming from the client:
+    const input = insertMusicProfileSchema.parse({
+      userId:   req.user.id,
+      platform: validation.platform,
+      profileUrl,
+    });
+
+    // 2) Fetch whatever the service adds:
+    const metadata = await musicPlatformService.fetchArtistData(
+      validation.platform,
+      validation.username
+    );
+
+    // 3) Merge them together when saving—TS knows exactly which fields go where:
+    const profile = await storage.createMusicProfile({
+      userId:    input.userId,
+      platform:  input.platform,
+      profileUrl: input.profileUrl,
+      username:  validation.username,
+    });
+
+    res.json(profile);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ message: "Invalid profile data", errors: err.errors });
+    }
+    console.error(err);
+    res.status(500).json({ message: "Failed to create music profile" });
+  }
+});
 
   app.get('/api/music/profiles/:userId', async (req, res) => {
     try {
@@ -1646,31 +1676,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/music/tracks', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const trackData = insertTrackSchema.parse({ ...req.body, userId });
-      
-      // Generate embed code if platform URLs provided
-      if (trackData.platforms && Array.isArray(trackData.platforms)) {
-        const embedCode = musicPlatformService.generateEmbedCode(
-          trackData.platforms[0]?.platform || 'spotify',
-          trackData.platforms[0]?.username || '',
-          trackData.platforms[0]?.trackId
-        );
-        trackData.embedCode = embedCode;
-      }
-      
-      const track = await storage.createTrack(trackData);
-      res.json(track);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid track data", errors: error.errors });
-      }
-      console.error("Error creating track:", error);
-      res.status(500).json({ message: "Failed to create track" });
+app.post("/api/music/tracks", requireAuth, async (req, res) => {
+  try {
+    // 1) Validate
+    const validated = insertTrackSchema.parse({
+      ...req.body,
+      userId: req.user.id,
+    });
+
+    // 2) Build a loose payload so we can tack on embedCode
+    const trackPayload: Record<string, any> = { ...validated };
+
+    // 3) If we actually got `platforms`, pick the first one (or loop over them)
+    if (Array.isArray(validated.platforms) && validated.platforms.length > 0) {
+      const { platform, username, trackId } = validated.platforms[0];
+
+      // **Pass both** platform & username (and optional trackId)
+      trackPayload.embedCode = musicPlatformService.generateEmbedCode(
+        platform,
+        username,
+        trackId
+      );
     }
-  });
+
+    // 4) Persist & respond
+    const track = await storage.createTrack(trackPayload);
+    return res.json(track);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ message: "Invalid track data", errors: err.errors });
+    }
+    console.error("Error creating track:", err);
+    return res.status(500).json({ message: "Failed to create track" });
+  }
+});
+
 
   app.get('/api/music/tracks', async (req, res) => {
     try {
@@ -3065,3 +3107,4 @@ Make it engaging and authentic to underground music culture. Respond with only a
 
   return httpServer;
 }
+

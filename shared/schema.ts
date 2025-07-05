@@ -51,6 +51,16 @@ export const users = pgTable("users", {
   resetToken: varchar("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
   forcePasswordChange: boolean("force_password_change").default(false),
+  genres: text("genres").default(""),
+  subgenres: text("subgenres").default(""),
+  spotifyUrl: text("spotify_url").default(""),
+  soundcloudUrl: text("soundcloud_url").default(""),
+  mixcloudUrl: text("mixcloud_url").default(""),
+  youtubeUrl: text("youtube_url").default(""),
+  beatportUrl: text("beatport_url").default(""),
+  bandcampUrl: text("bandcamp_url").default(""),
+  residentAdvisorUrl: text("resident_advisor_url").default(""),
+  instagramUrl: text("instagram_url").default(""),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -171,6 +181,8 @@ export const moderationLogs = pgTable("moderation_logs", {
   reason: text("reason"),
   moderatorId: varchar("moderator_id").references(() => users.id),
   isAutoModerated: boolean("is_auto_moderated").default(false),
+  /** optional free-form admin note */
+  details: text("details").default(""), 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -409,22 +421,16 @@ export const articleAnalyticsRelations = relations(articleAnalytics, ({ one }) =
 }));
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertUserSchema = createInsertSchema(users);
 
-export const upsertUserSchema = createInsertSchema(users).omit({
-  createdAt: true,
-  updatedAt: true,
-});
+export const upsertUserSchema = createInsertSchema(users);
 
-export const insertPostSchema = createInsertSchema(posts).omit({
-  id: true,
-  likesCount: true,
-  commentsCount: true,
-  isModerated: true,
-  createdAt: true,
+export const insertPostSchema = z.object({
+  userId:  z.string(),
+  title:   z.string(),
+  content: z.string(),
+  tags:    z.array(z.string()).optional(),
+  // …etc
 });
 
 export const insertCommentSchema = createInsertSchema(comments).omit({
@@ -433,54 +439,33 @@ export const insertCommentSchema = createInsertSchema(comments).omit({
   createdAt: true,
 });
 
-export const insertPostReactionSchema = createInsertSchema(postReactions).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertPostReactionSchema = createInsertSchema(postReactions);
+
+export const insertMemeSchema = createInsertSchema(memes);
+
+export const insertGigSchema = createInsertSchema(gigs);
+
+export const insertPlaylistSchema = createInsertSchema(playlists);
+
+export const insertNewsArticleSchema = createInsertSchema(newsArticles);
+
+export const insertMusicProfileSchema = z.object({
+  userId: z.string(),
+  platform: z.string(),         // e.g. "spotify"
+  profileUrl: z.string().url(),
+  username:   z.string(),   // <-- add this
+  // …any other fields…
 });
 
-export const insertMemeSchema = createInsertSchema(memes).omit({
-  id: true,
-  likesCount: true,
-  isNSFW: true,
-  createdAt: true,
-});
 
-export const insertGigSchema = createInsertSchema(gigs).omit({
-  id: true,
-  isActive: true,
-  createdAt: true,
-});
-
-export const insertPlaylistSchema = createInsertSchema(playlists).omit({
-  id: true,
-  isActive: true,
-  createdAt: true,
-});
-
-export const insertNewsArticleSchema = createInsertSchema(newsArticles).omit({
-  id: true,
-  isSpotlight: true,
-  createdAt: true,
-});
-
-export const insertMusicProfileSchema = createInsertSchema(userMusicProfiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
-  id: true,
-  updatedAt: true,
-});
+export const insertAdminSettingSchema = createInsertSchema(adminSettings);
 
 // Types
 export type User = typeof users.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Post = typeof posts.$inferSelect;
-export type InsertPost = z.infer<typeof insertPostSchema>;
+export type InsertPostInput = z.infer<typeof insertPostSchema>;
 export type Comment = typeof comments.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
 export type PostReaction = typeof postReactions.$inferSelect;
@@ -498,34 +483,49 @@ export type InsertMusicProfile = z.infer<typeof insertMusicProfileSchema>;
 export type AdminSetting = typeof adminSettings.$inferSelect;
 export type InsertAdminSetting = z.infer<typeof insertAdminSettingSchema>;
 
-export const insertTrackSchema = createInsertSchema(tracks).omit({
-  id: true,
-  likesCount: true,
-  playsCount: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertTrackSchema = z.object({
+  userId: z.string(),
+  title: z.string(),
+  artist: z.string(),
+  // you might currently have this as `platforms: z.array(z.string()).optional()`
+  // but in order to generate an embed you really need to know BOTH:
+  //  - which platform (e.g. "spotify")
+  //  - what the username (or playlist/track id) is on that platform
+  platforms: z
+    .array(
+      z.object({
+        platform: z.string(),
+        username: z.string(),
+        trackId: z.string().optional(),
+      })
+    )
+    .optional(),
+}).passthrough();
 
-export const insertCuratedPlaylistSchema = createInsertSchema(curatedPlaylists).omit({
-  id: true,
-  likesCount: true,
-  createdAt: true,
-  updatedAt: true,
-});
 
-export const insertPlatformIntegrationSchema = createInsertSchema(platformIntegrations).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+exports.insertModerationLogSchema = createInsertSchema(exports.moderationLogs);
+
+export const insertCuratedPlaylistSchema = createInsertSchema(curatedPlaylists);
+
+export const insertPlatformIntegrationSchema = createInsertSchema(platformIntegrations);
 
 // Extended Types with Relations
-export type PostWithUser = Post & { user: User };
+ export type PostWithUser = {
+   id: number;
+   title: string;
+   content: string;
+   userId: string;
+   createdAt: Date;
+   updatedAt: Date;
+   /* … other props … */
+   /** reaction count on this post */
+   likes?: number;
+ };
 export type CommentWithUser = Comment & { user: User };
 export type MemeWithUser = Meme & { user: User };
 export type ModerationLog = typeof moderationLogs.$inferSelect;
 export type MusicProfileWithUser = MusicProfile & { user: User };
-export type InsertTrack = z.infer<typeof insertTrackSchema>;
+export type InsertTrackInput = z.infer<typeof insertTrackSchema>;
 export type Track = typeof tracks.$inferSelect;
 export type TrackWithUser = Track & { user: User };
 export type InsertCuratedPlaylist = z.infer<typeof insertCuratedPlaylistSchema>;
@@ -537,27 +537,17 @@ export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type SupportTicket = typeof supportTickets.$inferSelect;
 
 // New table schemas
-export const insertUserLogSchema = createInsertSchema(userLogs).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertUserLogSchema = 
+  createInsertSchema(userLogs);
 
-export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions).omit({
-  id: true,
-  subscribedAt: true,
-});
+export const insertNewsletterSubscriptionSchema =
+  createInsertSchema(newsletterSubscriptions);
 
-export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  resolvedAt: true,
-});
+export const insertSupportTicketSchema =
+  createInsertSchema(supportTickets);
 
-export const insertArticleAnalyticsSchema = createInsertSchema(articleAnalytics).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertArticleAnalyticsSchema = 
+  createInsertSchema(articleAnalytics);
 
 // New types
 export type InsertUserLog = z.infer<typeof insertUserLogSchema>;

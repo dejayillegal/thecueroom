@@ -11,12 +11,16 @@
     "paths": {
       "@shared/*": ["shared/*"]
     },
-    "outDir": "dist",
-    "rootDir": "."
+    "outDir": "dist/server",
+    "rootDir": ".",
+    "typeRoots": [
+      "node_modules/@types",
+      "server/types"
+    ]
   },
   "include": [
+    "server/types/**/*.d.ts",
     "server/**/*.ts",
-    "shared/**/*.ts",
-    "global.d.ts"
+    "shared/**/*.ts"
   ]
 }
