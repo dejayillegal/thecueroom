@@ -1,25 +1,31 @@
 // server/index.ts
 
 import http from "http";
-import express, { type Request, Response, NextFunction } from "express";
-import cors from "cors";             // ← new
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";              // ← import it
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// ─── 1) CORS ───────────────────────────────────────────────────────────────────
-// allow your GH-Pages origin (or use cors() to allow * for testing)
+// allow your GitHub Pages origin (or * for everything):
 app.use(cors({
-  origin: "https://dejayillegal.github.io",
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  credentials: true,             // if you need cookies or auth headers
+  origin: process.env.CLIENT_URL || '*',
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
 // ─── 2) Body parsers ─────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// 2) CORS — allow our GitHub Pages origin (and adjust if you add others)
+app.use(cors({
+  origin: process.env.CLIENT_URL?.split(",") || [] ,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true
+}));
+ 
 // ─── 3) Logging middleware ───────────────────────────────────────────────────
 app.use((req, res, next) => {
   const start = Date.now();

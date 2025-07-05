@@ -1,24 +1,16 @@
 # render.yaml
 
 services:
-  # 1) Backend API
+  # Backend API service
   - type: web
     name: thecueroom-api
     env: node
-    plan: free
     repo: https://github.com/dejayillegal/thecueroom
     branch: main
+    plan: free
     buildCommand: |
-      # install everything (including devDeps for build & drizzle)
-      NPM_CONFIG_PRODUCTION=false npm install
-
-      # push your drizzle schema
-      npm run db:push
-
-      # seed initial data (admin user, sample posts, etc)
-      npm run db:seed
-
-      # compile the server TS → dist/server
+      NPM_CONFIG_PRODUCTION=false npm ci
+      npm run build:shared
       npm run build:server
     startCommand: npm run start
     envVars:
@@ -28,40 +20,32 @@ services:
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-      - key: SMTP_HOST
-        value: smtp-relay.brevo.com
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USER
-        fromSecret: SMTP_USER
-      - key: SMTP_PASS
-        fromSecret: SMTP_PASS
-      - key: FROM_EMAIL
-        value: support@thecueroom.xyz
-    healthCheckPath: /api/health
+      - key: CLIENT_URL
+        value: https://dejayillegal.github.io
+      # …add your SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, FROM_EMAIL here…
 
-  # 2) Frontend Static Site
+  # Frontend static site
   - type: static
     name: thecueroom-frontend
     env: node
-    plan: free
     repo: https://github.com/dejayillegal/thecueroom
     branch: main
+    plan: free
     buildCommand: |
-      # install & build your Vite client
-      NPM_CONFIG_PRODUCTION=false npm install
-      npm run build:static
-    staticPublishPath: dist/client
+      NPM_CONFIG_PRODUCTION=false npm ci
+      npm run build
+    staticPublishPath: dist
     envVars:
-      # this will be baked into your client bundle by Vite
+      - key: VITE_BASE_PATH
+        value: /thecueroom/
       - key: VITE_API_BASE_URL
         value: https://thecueroom-api.onrender.com
     routes:
-      # forward all /api calls back to your API service
+      # proxy any /api calls back to your Render‐hosted API
       - type: rewrite
         source: /api/*
         destination: https://thecueroom-api.onrender.com/api/*
-      # serve index.html for every other path (SPA)
+      # otherwise serve your SPA
       - type: rewrite
         source: /*
         destination: /index.html
