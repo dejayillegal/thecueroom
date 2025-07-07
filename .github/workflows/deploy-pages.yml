@@ -18,14 +18,15 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-      - run: |
+      - name: Install & Build
+        run: |
           npm install
-          npm run build:client
+          npm run build:static
         env:
           VITE_BASE_PATH: /thecueroom/
           VITE_API_BASE_URL: https://thecueroom-api.onrender.com
 
-      - name: Upload artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
