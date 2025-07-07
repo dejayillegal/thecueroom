@@ -2,6 +2,7 @@
   "name": "thecueroom",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "homepage": "https://dejayillegal.github.io/thecueroom/",
   "license": "MIT",
   "scripts": {
