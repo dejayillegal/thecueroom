@@ -15,10 +15,15 @@ export function Logo({
   animationType = 'glow'
 }: LogoProps) {
   const getLogoSrc = () => {
+    const basePath = (import.meta.env.VITE_BASE_PATH || '/') as string;
+    const prefix = basePath.endsWith('/') ? basePath : `${basePath}/`;
     switch (size) {
-      case 'sm': return "/images/img-logo128x128_1751081882323.png";
-      case 'lg': return "/images/img-logo512x512_1751081882323.png";
-      default: return "/images/img-logo256x256_1751081882323.png";
+      case 'sm':
+        return `${prefix}images/img-logo128x128_1751081882323.png`;
+      case 'lg':
+        return `${prefix}images/img-logo512x512_1751081882323.png`;
+      default:
+        return `${prefix}images/img-logo256x256_1751081882323.png`;
     }
   };
 
