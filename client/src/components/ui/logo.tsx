@@ -15,8 +15,8 @@ export function Logo({
   animationType = 'glow'
 }: LogoProps) {
   const getLogoSrc = () => {
-    const basePath = (import.meta.env.VITE_BASE_PATH || '/') as string;
-    const prefix = basePath.endsWith('/') ? basePath : `${basePath}/`;
+    const baseEnv = import.meta.env.BASE_URL || '/thecueroom/';
+    const prefix = baseEnv.endsWith('/') ? baseEnv : `${baseEnv}/`;
     switch (size) {
       case 'sm':
         return `${prefix}images/img-logo128x128_1751081882323.png`;
