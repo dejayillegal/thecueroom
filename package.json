@@ -2,6 +2,8 @@
   "name": "thecueroom",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://dejayillegal.github.io/thecueroom",
+  "license": "MIT",
   "scripts": {
     "build:shared": "tsc -p tsconfig.shared.json",
     "build:server": "tsc -p tsconfig.server.json",
