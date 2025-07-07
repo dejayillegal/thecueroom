@@ -19,7 +19,7 @@ jobs:
           node-version: "20"
           cache: "npm"
       - run: |
-          npm ci
+          npm install
           npm run build:client
         env:
           VITE_BASE_PATH: /thecueroom/

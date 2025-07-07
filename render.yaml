@@ -9,7 +9,7 @@ services:
     branch: main
     plan: free
     buildCommand: |
-      NPM_CONFIG_PRODUCTION=false npm ci
+      NPM_CONFIG_PRODUCTION=false npm install
       npm run build:shared
       npm run build:server
     startCommand: npm run start
