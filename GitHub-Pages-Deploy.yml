@@ -1,15 +1,17 @@
 jobs:
   build:
-    # …
+    # Build the static site and upload it for GitHub Pages
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with:
+          node-version: '20'
+          cache: 'npm'
       - run: npm install
       - name: Build static site
         run: npm run build:client
       - name: Upload Pages artifact
         id: upload
         uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist/client'
+        with:          path: ./dist
+
