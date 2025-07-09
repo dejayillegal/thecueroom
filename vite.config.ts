@@ -9,10 +9,12 @@ export default ({ mode }) => {
 
   return defineConfig({
     root: 'client',
-    base,                  // ← this ensures asset URLs get prefixed
+    base,
     plugins: [react()],
     resolve: {
-      alias: { '@': path.resolve(__dirname, 'client/src') },
+      alias: { 
+        '@': path.resolve(__dirname, 'client/src') 
+      },
     },
     build: {
       outDir: '../dist',
