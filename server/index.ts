@@ -9,14 +9,20 @@ import { setupVite, serveStatic, log } from "./vite";
 const app = express();
 
 // ─── 1) CORS ─────────────────────────────────────────────────────────────────
-const clientOrigin = process.env.CLIENT_URL?.split(",") ?? [];
-app.use(cors({
+const clientOrigin = process.env.CLIENT_URL || "https://dejayillegal.github.io";
+
+const corsOptions = {
   origin: clientOrigin,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
-  credentials: true
-}));
-app.options("*", cors());
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true as const,
+};
+
+// 1a) Preflight: respond to OPTIONS on any /api/* route
+app.options("/api/*", cors(corsOptions));
+
+// 1b) Simple & actual CORS requests on /api
+app.use("/api", cors(corsOptions));
 
 // ─── 2) Body parsers ─────────────────────────────────────────────────────────
 app.use(express.json());
@@ -34,28 +40,26 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     if (req.path.startsWith("/api")) {
-      let line = `${req.method} ${req.path} ${res.statusCode} in ${Date.now()-start}ms`;
+      let line = `${req.method} ${req.path} ${res.statusCode} in ${Date.now() - start}ms`;
       if (capturedJson) {
         line += ` :: ${JSON.stringify(capturedJson)}`;
       }
-      log(line.length > 120 ? line.slice(0,119) + "…" : line);
+      log(line.length > 120 ? line.slice(0, 119) + "…" : line);
     }
   });
 
   next();
 });
 
-
 (async () => {
-  // ─── 4) Mount all of your API + WS routes ───────────────────────────────────
+  // ─── 4) Mount all of your API + WS routes under /api ────────────────────────
   const server: http.Server = await registerRoutes(app);
 
   // ─── 5) Error handler (after routes!) ─────────────────────────────────────
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     res.status(status).json({ message: err.message || "Internal Server Error" });
-    // re-throw if you want your process to crash on uncaught exceptions
-    throw err;
+    // No re-throw here, so your process stays alive on errors
   });
 
   // ─── 6) Vite dev or static serve ────────────────────────────────────────────
@@ -68,7 +72,7 @@ app.use((req, res, next) => {
   // ─── 7) Finally, listen ────────────────────────────────────────────────────
   const port = Number(process.env.PORT) || 5050;
   const host = "0.0.0.0";
-  
+
   server.listen(port, host, () => {
     log(`✅ Server is running at http://${host}:${port}`);
   });
