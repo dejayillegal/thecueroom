@@ -108,6 +108,32 @@ export class EmailService {
     return result.success;
   }
 
+  async sendResetLink(email: string, token: string): Promise<boolean> {
+    const baseUrl = process.env.SITE_URL || 'http://localhost:5000';
+    const resetUrl = `${baseUrl}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+    const html = `
+      <div style="font-family: sans-serif; line-height:1.4;">
+        <h1>Password Reset</h1>
+        <p>Click below to reset your password:</p>
+        <p><a href="${resetUrl}">Reset Password</a></p>
+        <p>If that doesn’t work, paste this URL in your browser:</p>
+        <p>${resetUrl}</p>
+      </div>
+    `;
+
+    const text = `Reset your password: ${resetUrl}`;
+
+    const result = await this.sendEmail({
+      to: email,
+      subject: 'Reset your TheCueRoom password',
+      html,
+      text,
+    });
+
+    return result.success;
+  }
+
   /** Simple config check */
   async testConnection(): Promise<{ success: boolean; provider: 'smtp'; error?: string }> {
     try {
