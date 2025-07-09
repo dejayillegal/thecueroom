@@ -5,14 +5,16 @@ services:
   - type: web
     name: thecueroom-api
     env: node
+    plan: free
     repo: https://github.com/dejayillegal/thecueroom
     branch: main
-    plan: free
     buildCommand: |
       NPM_CONFIG_PRODUCTION=false npm install
       npm run build:shared
       npm run build:server
     startCommand: npm run start
+    # Health-check endpoint so Render won’t return 502 if your app is up
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -22,15 +24,24 @@ services:
         generateValue: true
       - key: CLIENT_URL
         value: https://dejayillegal.github.io
-      # …add your SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, FROM_EMAIL here…
+      - key: SMTP_HOST        # ← replace with your SMTP host
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT        # ← replace with your SMTP port
+        value: "587"
+      - key: SMTP_USER        # ← replace with your SMTP username
+        value: 9108c5001@smtp-brevo.com
+      - key: SMTP_PASS        # ← or store in a Render Secret and reference it here
+        value: your_smtp_password
+      - key: FROM_EMAIL       # email address used in From: header
+        value: support@thecueroom.xyz
 
   # Frontend static site
   - type: static
     name: thecueroom-frontend
     env: node
+    plan: free
     repo: https://github.com/dejayillegal/thecueroom
     branch: main
-    plan: free
     buildCommand: |
       NPM_CONFIG_PRODUCTION=false npm ci
       npm run build
@@ -41,11 +52,13 @@ services:
       - key: VITE_API_BASE_URL
         value: https://thecueroom-api.onrender.com
     routes:
-      # proxy any /api calls back to your Render‐hosted API
+      # 1) Serve any matching file from dist/ first
+      - type: filesystem
+      # 2) Proxy all /api calls to your backend service
       - type: rewrite
         source: /api/*
         destination: https://thecueroom-api.onrender.com/api/*
-      # otherwise serve your SPA
+      # 3) SPA fallback for all other routes
       - type: rewrite
         source: /*
         destination: /index.html
