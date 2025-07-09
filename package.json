@@ -21,7 +21,7 @@
   "predeploy": "npm run build:static",
   "deploy":   "gh-pages -d dist -b gh-pages",
 
-  "start":    "NODE_ENV=production node dist/server/index.js",
+  "start":    "NODE_ENV=production node dist/server/server/index.js",
 
   "dev":      "concurrently \"tsc -p tsconfig.server.json --watch\" \"cross-env VITE_BASE_PATH=/ vite\"",
 
