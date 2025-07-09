@@ -64,7 +64,7 @@ import {
   type InsertSupportTicket,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, inArray } from "drizzle-orm";
+import { eq, desc, and, sql, inArray, lt } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (custom auth)

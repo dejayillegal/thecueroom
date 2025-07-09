@@ -80,7 +80,7 @@ app.post('/api/posts', async (req, res) => {
 // Gigs endpoints
 app.get('/api/gigs', async (req, res) => {
   try {
-    const gigs = await storage.getAllGigs();
+    const gigs = await storage.getGigs();
     res.json(gigs);
   } catch (error) {
     console.error('Error fetching gigs:', error);
@@ -91,7 +91,7 @@ app.get('/api/gigs', async (req, res) => {
 // News endpoints
 app.get('/api/news', async (req, res) => {
   try {
-    const news = await storage.getAllNews();
+    const news = await storage.getNewsArticles();
     res.json(news);
   } catch (error) {
     console.error('Error fetching news:', error);
@@ -102,7 +102,7 @@ app.get('/api/news', async (req, res) => {
 // Playlists endpoints
 app.get('/api/playlists', async (req, res) => {
   try {
-    const playlists = await storage.getAllPlaylists();
+    const playlists = await storage.getPlaylists();
     res.json(playlists);
   } catch (error) {
     console.error('Error fetching playlists:', error);
