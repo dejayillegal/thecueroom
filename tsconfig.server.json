@@ -7,20 +7,21 @@
     "skipLibCheck":     true,
     "strict":           false,
     "resolveJsonModule": true,
-    "allowJs":          true,           // so TS can import .js from dist/shared
+    "allowJs":          true,
     "baseUrl":          ".",
-    "rootDir":          ".",            // cover /server, server/vite.ts and vite.config.ts
-    "outDir":           "dist/server",
     "paths": {
-      "@shared/*": ["dist/shared/*.js"] // at runtime point at your compiled shared code
-    }
+      "@shared/*": ["dist/shared/*.js"]
+    },
+    "rootDir":          "server",
+    "outDir":           "dist/server"
   },
   "include": [
-    "server/**/*.ts",    // your API + vite.ts helper
-    "vite.config.ts"     // pulled in by server/vite.ts in dev mode
+    "server/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "vite.config.ts",
+    "client"
   ]
 }
