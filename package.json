@@ -6,30 +6,18 @@
   "homepage": "https://dejayillegal.github.io/thecueroom/",
   "license": "MIT",
   "scripts": {
-  "build:shared": "tsc -p tsconfig.shared.json",
-
-  "build:server": "tsc -p tsconfig.server.json",
-
-  "build:client": "cross-env VITE_BASE_PATH=/thecueroom/ VITE_API_BASE_URL=https://thecueroom-api.onrender.com vite build",
-
-  "postbuild:client": "cp dist/index.html dist/404.html",
-
-  "build:static": "npm run build:client && npm run postbuild:client",
-
-  "build": "npm run build:shared && npm run build:server && npm run build:static",
-
-  "predeploy": "npm run build:static",
-  "deploy":   "gh-pages -d dist -b gh-pages",
-
-  "start":    "NODE_ENV=production node dist/server/server/index.js",
-
-  "dev":      "concurrently \"tsc -p tsconfig.server.json --watch\" \"cross-env VITE_BASE_PATH=/ vite\"",
-
-  "check":    "tsc",
-
-  "db:push":   "drizzle-kit push",
-  "db:studio": "drizzle-kit studio",
-  "db:seed":   "tsx drizzle/seed.ts"
+    "build:shared": "tsc -p tsconfig.shared.json",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:client": "cross-env VITE_BASE_PATH=/thecueroom/ VITE_API_BASE_URL=https://thecueroom-api.onrender.com vite build",
+    "postbuild:client": "cp dist/index.html dist/404.html",
+    "build:static": "npm run build:client && npm run postbuild:client",
+    "build": "npm run build:shared && npm run build:server && npm run build:static",
+    "start": "NODE_ENV=production node dist/server/index.js",
+    "dev":      "concurrently \"tsc -p tsconfig.server.json --watch\" \"cross-env VITE_BASE_PATH=/ vite\"",
+    "check":    "tsc",
+    "db:push":   "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed":   "tsx drizzle/seed.ts"
 },
   "_moduleAliases": {
     "@shared": "dist/shared"

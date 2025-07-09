@@ -1,27 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
+    "target":           "ES2020",
+    "module":           "commonjs",
+    "rootDir":          "server",          
+    "outDir":           "dist/server",
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
+    "esModuleInterop":  true,
+    "skipLibCheck":     true,
+    "strict":           false,
+    "allowJs":          true,              // so we can import generated .js in dist/shared
+    "baseUrl":          ".",
     "paths": {
-      "@shared/*": ["shared/*"]
-    },
-    "outDir": "dist/server",
-    "rootDir": ".",                // ← allow imports from server/, shared/, and top-level files
-    "typeRoots": [
-      "node_modules/@types",
-      "server/types"
-    ]
+      "@shared/*": ["dist/shared/*.js"]   // point at your compiled shared output
+    }
   },
   "include": [
-    "server/**/*.ts",              // your API code
-    "shared/**/*.ts",              // your shared Zod schemas/types
-    "server/vite.ts"               // your Vite-helper (if you still need it)
+    "server/**/*.ts"
   ],
   "exclude": [
     "node_modules",
