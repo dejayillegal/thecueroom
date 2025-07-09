@@ -9,8 +9,9 @@ import { setupVite, serveStatic, log } from "./vite";
 const app = express();
 
 // ─── 1) CORS ─────────────────────────────────────────────────────────────────
+const clientOrigin = process.env.CLIENT_URL?.split(",") ?? [];
 app.use(cors({
-  origin: process.env.CLIENT_URL?.split(",") || "*",
+  origin: clientOrigin,
   methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
