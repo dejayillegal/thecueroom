@@ -23,7 +23,7 @@ jobs:
           npm install
           npm run build:static
         env:
-          VITE_BASE_PATH: /
+          VITE_BASE_PATH: /thecueroom/
           VITE_API_BASE_URL: https://thecueroom-api.onrender.com
 
       - name: Upload Pages Artifact
