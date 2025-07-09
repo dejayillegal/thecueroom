@@ -462,10 +462,26 @@ export const insertAdminSettingSchema = createInsertSchema(adminSettings);
 
 // Types
 export type User = typeof users.$inferSelect;
-export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export interface UpsertUser {
+  id: string;
+  email: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  stageName?: string;
+  username?: string;
+  profileImageUrl?: string | null;
+  bio?: string | null;
+  isVerified?: boolean;
+  isSuspended?: boolean;
+  verificationLinks?: any;
+  avatarConfig?: any;
+  [key: string]: any;
+}
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Post = typeof posts.$inferSelect;
 export type InsertPostInput = z.infer<typeof insertPostSchema>;
+export type InsertPost = typeof posts.$inferInsert;
 export type Comment = typeof comments.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
 export type PostReaction = typeof postReactions.$inferSelect;
@@ -526,6 +542,7 @@ export type MemeWithUser = Meme & { user: User };
 export type ModerationLog = typeof moderationLogs.$inferSelect;
 export type MusicProfileWithUser = MusicProfile & { user: User };
 export type InsertTrackInput = z.infer<typeof insertTrackSchema>;
+export type InsertTrack = typeof tracks.$inferInsert;
 export type Track = typeof tracks.$inferSelect;
 export type TrackWithUser = Track & { user: User };
 export type InsertCuratedPlaylist = z.infer<typeof insertCuratedPlaylistSchema>;
