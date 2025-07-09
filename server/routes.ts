@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireAdmin, hashPassword, generateTemporaryPassword, sendPasswordResetEmail } from "./auth";
-import { insertPostSchema, insertCommentSchema, insertMemeSchema, insertGigSchema, insertPlaylistSchema, insertMusicProfileSchema, insertTrackSchema, insertCuratedPlaylistSchema, insertPostReactionSchema, InsertPostInput } from "@shared/schema";
+import { insertPostSchema, insertCommentSchema, insertMemeSchema, insertGigSchema, insertPlaylistSchema, insertMusicProfileSchema, insertTrackSchema, insertCuratedPlaylistSchema, insertPostReactionSchema, InsertPostInput, InsertPost, InsertComment, InsertTrack } from "@shared/schema";
 import { z } from "zod";
 import { aiService } from "./services/aiService";
 import { newsService } from "./services/newsService";
@@ -334,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const post = await storage.createPost(postData);
+      const post = await storage.createPost(postData as InsertPost);
       res.json(post);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               userId: 'ai-bot-thecueroom',
               content: botResponse,
               createdAt: new Date(),
-            });
+            } as any);
           } catch (error) {
             console.error('Error adding bot comment:', error);
           }
@@ -831,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const commentData = insertCommentSchema.parse({ ...req.body, userId });
       
       // Content moderation
-      const moderationResult = await moderationService.moderateContent(commentData.content);
+      const moderationResult = await moderationService.moderateContent(commentData.content as unknown as string);
       if (!moderationResult.approved) {
         return res.status(400).json({ 
           message: "Content violates community guidelines",
@@ -839,7 +839,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const comment = await storage.createComment(commentData);
+      const comment = await storage.createComment(commentData as InsertComment);
       res.json(comment);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -1254,12 +1254,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
 
-      for (const postData of testPosts) {
-        await storage.createPost({
-          ...postData,
-          createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) // Random time within last week
-        });
-      }
+        for (const postData of testPosts) {
+          await storage.createPost({
+            ...postData,
+            createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000)
+          } as InsertPost);
+        }
 
       res.json({ message: `Successfully created ${testPosts.length} forum test posts`, count: testPosts.length });
     } catch (error) {
@@ -1446,7 +1446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mentions: mentions || [],
         memeImageUrl: memeImageUrl || null,
         memeImageData: memeImageData || null
-      });
+      } as any);
 
       // Attach user data for response
       const commentWithUser = {
@@ -1700,7 +1700,7 @@ app.post("/api/music/tracks", requireAuth, async (req, res) => {
     }
 
     // 4) Persist & respond
-    const track = await storage.createTrack(trackPayload);
+    const track = await storage.createTrack(trackPayload as InsertTrack);
     return res.json(track);
   } catch (err) {
     if (err instanceof z.ZodError) {

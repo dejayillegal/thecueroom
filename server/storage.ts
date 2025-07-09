@@ -607,10 +607,10 @@ export class DatabaseStorage implements IStorage {
     const [newComment] = await db.insert(comments).values(comment).returning();
     
     // Update comments count
-    await db
-      .update(posts)
-      .set({ commentsCount: sql`${posts.commentsCount} + 1` })
-      .where(eq(posts.id, comment.postId));
+      await db
+        .update(posts)
+        .set({ commentsCount: sql`${posts.commentsCount} + 1` })
+        .where(eq(posts.id, comment.postId as unknown as number));
     
     return newComment;
   }
@@ -1268,12 +1268,12 @@ export class DatabaseStorage implements IStorage {
   async setAdminSetting(settingData: InsertAdminSetting): Promise<AdminSetting> {
     const [setting] = await db
       .insert(adminSettings)
-      .values(settingData)
+      .values(settingData as any)
       .onConflictDoUpdate({
         target: adminSettings.settingKey,
         set: {
-          settingValue: settingData.settingValue,
-          updatedBy: settingData.updatedBy,
+          settingValue: (settingData as any).settingValue,
+          updatedBy: (settingData as any).updatedBy,
           updatedAt: new Date(),
         },
       })
