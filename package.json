@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build:shared": "tsc -p tsconfig.shared.json",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\"}' > dist/server/package.json",
     "predeploy": "npm run build:client",
     "deploy": "gh-pages -d dist/client",
     "build:client": "vite build --ssrManifest",
