@@ -1,27 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "ESNext",            // emit ESM imports/exports
+    "moduleResolution": "node16",  // Node‐style resolution for ESM
     "esModuleInterop": true,
-
-    // Don’t try to compile any .js
     "allowJs": false,
+    "skipLibCheck": true,
 
-    // Your server source root & output
-    "rootDir": "server",
-    "outDir": "dist/server",
+    "rootDir": "server",           // your TS source
+    "outDir": "dist/server",       // compiled JS
 
-    // Type-only imports for @shared
-    "baseUrl": ".",
+    "baseUrl": ".",                
     "paths": {
-      "@shared/*": ["dist/shared/*.d.ts"]
-    },
-
-    // Skip checking of lib .d.ts files for speed & noise
-    "skipLibCheck": true
+      "@shared/*": ["dist/shared/*.js"]  // pick up your shared ESM JS
+    }
   },
-
-  // Only compile your server .ts files
   "include": ["server/**/*.ts"]
 }
