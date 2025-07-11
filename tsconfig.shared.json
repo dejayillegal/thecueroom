@@ -5,7 +5,7 @@
     "outDir": "dist/shared",
     "declaration": true,
     "declarationMap": true,
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es2020",
 
     // these two stop TypeScript from chewing on your node_modules type files
@@ -13,7 +13,7 @@
     "skipLibCheck": true,
 
     // don’t load any @types/* by default
-    "types": []
+    "types": ["node"] 
   },
   "include": ["shared/**/*"],     // only your shared code
   "exclude": ["node_modules", "dist"]
