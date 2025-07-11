@@ -26,7 +26,8 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm cache clean --force
+        run: |
+          npm cache clean --force
           rm -rf node_modules package-lock.json
           npm install --no-optional
           npm install
