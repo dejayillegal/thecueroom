@@ -1,19 +1,18 @@
 // tsconfig.shared.json
 {
   "compilerOptions": {
-    "rootDir": "shared",          
+    "rootDir": "shared",
     "outDir": "dist/shared",
 
     "declaration": true,
     "declarationMap": true,
 
-    "module": "commonjs",         // ← emit require()/exports
+    "module": "commonjs",
     "target": "ES2020",
     "moduleResolution": "node",
     "skipLibCheck": true,
 
-    // no automatic @types loaded
-    "types": []
+    "types": ["node"]
   },
   "include": ["shared/**/*"],
   "exclude": ["node_modules", "dist"]
