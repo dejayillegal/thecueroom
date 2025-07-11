@@ -12,7 +12,7 @@
     "postbuild:client": "cp dist/index.html dist/404.html",
     "build:static": "npm run build:client && npm run postbuild:client",
     "build": "npm run build:shared && npm run build:server && npm run build:static",
-    "start": "echo 'Files in root/:' && ls -la / && NODE_ENV=production node server/index.js",
+    "start": "echo 'Files in root/:' && ls -la . && echo 'Files in server/:' && ls -la server/ && echo 'path root/:' && pwd && NODE_ENV=production node server/index.js",
     "dev":      "concurrently \"tsc -p tsconfig.server.json --watch\" \"cross-env VITE_BASE_PATH=/ vite\"",
     "check":    "tsc",
     "db:push":   "drizzle-kit push",
