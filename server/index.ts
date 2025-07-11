@@ -5,6 +5,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import 'module-alias/register';
 
 const app = express();
 
@@ -69,6 +70,8 @@ app.use((req, res, next) => {
   });
 
   // ─── 7) Vite dev or static serve ────────────────────────────────────────────
+  const serveClient = process.env.SERVE_CLIENT === 'true';
+  
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {

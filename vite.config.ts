@@ -4,13 +4,13 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default ({ mode }) => {
-  // load all env vars (including VITE_BASE_PATH)
+  // Load all env vars (including VITE_BASE_PATH)
   const env = loadEnv(mode, process.cwd(), '');
   const base = env.VITE_BASE_PATH || '/';
 
   return defineConfig({
     root: 'client',
-    base,  // e.g. '/thecueroom/' in production
+    base,              // e.g. '/thecueroom/' in production
     plugins: [react()],
     resolve: {
       alias: {
@@ -18,8 +18,17 @@ export default ({ mode }) => {
       },
     },
     build: {
-      outDir: '../dist',
+      // 1) Output into dist/client instead of the top‐level dist/
+      outDir: '../dist/client',
       emptyOutDir: true,
+
+      // 2) Generate the SSR manifest (ssr-manifest.json)
+      ssrManifest: true,
+
+      // (Optional) tweak Rollup if you need a custom input:
+      // rollupOptions: {
+      //   input: path.resolve(__dirname, 'client/index.html'),
+      // },
     },
   });
 };

@@ -34,6 +34,18 @@ export default function NotFound() {
     };
   }, []);
 
+  // Base URL for links: "/" in dev or "/thecueroom/" in prod
+  const homeHref = import.meta.env.BASE_URL;
+
+  // Back button handler: go back if possible, else redirect home
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = homeHref;
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden">
       {/* Background animated elements */}
@@ -55,7 +67,9 @@ export default function NotFound() {
       <div className="text-center space-y-8 px-4 z-10">
         {/* Animated 404 */}
         <div className="relative">
-          <h1 className={`text-9xl font-black bg-gradient-to-r from-purple-400 via-cyan-400 to-green-400 bg-clip-text text-transparent transition-transform duration-100 ${beatAnimation ? 'scale-105' : 'scale-100'}`}>
+          <h1 className={`text-9xl font-black bg-gradient-to-r from-purple-400 via-cyan-400 to-green-400 bg-clip-text text-transparent transition-transform duration-100 ${
+            beatAnimation ? 'scale-105' : 'scale-100'
+          }`}>
             4🎧4
           </h1>
           <div className="absolute -top-4 -right-4 animate-spin">
@@ -70,27 +84,27 @@ export default function NotFound() {
           </h2>
         </div>
 
-        {/* Minimal description */}
+        {/* Description */}
         <p className="text-gray-400 max-w-md mx-auto text-sm">
           Looks like this page got lost in the underground. Let's get you back to the main floor.
         </p>
 
-        {/* BPM counter (fun element) */}
+        {/* Fun footer */}
         <div className="text-xs text-gray-500 font-mono">
           ERROR_RATE: 404 BPM | STATUS: TRACK_NOT_FOUND | MODE: UNDERGROUND
         </div>
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <Link href="/">
+          <Link href={homeHref}>
             <Button className="gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 border-0">
               <Home className="h-4 w-4" />
               Back to The Room
             </Button>
           </Link>
-          <Button 
-            variant="outline" 
-            onClick={() => window.history.back()}
+          <Button
+            variant="outline"
+            onClick={handleBack}
             className="border-gray-600 text-gray-300 hover:bg-gray-800"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -98,7 +112,7 @@ export default function NotFound() {
           </Button>
         </div>
 
-        {/* Fun footer */}
+        {/* Footer philosophy */}
         <div className="text-xs text-gray-600 pt-8">
           "When in doubt, drop the bass... or just go home" - TheCueRoom Philosophy
         </div>

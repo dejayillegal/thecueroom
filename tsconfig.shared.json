@@ -1,14 +1,12 @@
+// tsconfig.shared.json
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "rootDir": "shared",
     "outDir": "dist/shared",
+    "rootDir": "src/shared",
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "declarationMap": true,
+    "module": "esnext",
+    "target": "es2020"
   },
-  "include": ["shared/**/*.ts"],
-  "exclude": ["node_modules","dist"]
+  "include": ["src/shared/**/*"]
 }

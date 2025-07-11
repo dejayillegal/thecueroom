@@ -1,15 +1,14 @@
 name: Deploy to GitHub Pages
 
-# Trigger on pushes to your main branch
 on:
   push:
     branches:
       - main
 
 permissions:
-  contents: read      # to read your repo
-  pages: write        # to push to gh-pages
-  id-token: write     # required by configure-pages
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -17,29 +16,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out your code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install Node and dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      # 3. Build your static site
       - name: Build static site
-        run: npm run build:static
+        run: npm run build:static   # builds into dist/client + copies 404.html
 
-      # 4. Upload the dist/ folder as the Pages artifact
       - name: Upload Pages artifact
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+-         path: './dist'
++         path: './dist/client'    # only upload the client folder
 
   deploy:
     name: Deploy to GitHub Pages
@@ -49,17 +46,14 @@ jobs:
       name: github-pages
 
     steps:
-      # 5. Configure the gh-pages branch for you
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
 
-      # 6. Deploy the artifact you just built
       - name: Deploy artifact
         id: deployment
         uses: actions/deploy-pages@v4
         with:
           artifact_id: ${{ steps.upload.outputs.artifact_id }}
 
-      # 7. (Optional) Print the live URL
       - name: Show site URL
         run: echo "Your site is live at ${{ steps.deployment.outputs.page_url }}"
