@@ -2,11 +2,11 @@
 {
   "compilerOptions": {
     "outDir": "dist/shared",
-    "rootDir": "src/shared",
+    "rootDir": "shared",
     "declaration": true,
     "declarationMap": true,
     "module": "esnext",
     "target": "es2020"
   },
-  "include": ["src/shared/**/*"]
+  "include": ["shared/**/*"]
 }

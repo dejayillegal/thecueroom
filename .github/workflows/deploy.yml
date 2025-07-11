@@ -35,8 +35,7 @@ jobs:
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
--         path: './dist'
-+         path: './dist/client'    # only upload the client folder
+          path: './dist/client'      # only upload the client folder
 
   deploy:
     name: Deploy to GitHub Pages
