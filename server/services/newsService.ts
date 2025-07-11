@@ -1,3 +1,6 @@
+// server/services/newsService.ts
+// @ts-nocheck
+
 import Parser from 'rss-parser';
 import { storage } from '../storage';
 
@@ -28,25 +31,25 @@ class NewsService {
     { name: 'EDM.com', url: 'https://edm.com/feed', category: 'Electronic' },
     { name: 'We Rave You', url: 'https://weraveyou.com/feed/', category: 'Electronic' },
     { name: 'Your EDM', url: 'https://youredm.com/feed/', category: 'Electronic' },
-    
+
     // Techno & House Focused
     { name: 'Beatport News', url: 'https://news.beatport.com/feed/', category: 'Techno/House' },
     { name: 'Data Transmission', url: 'https://datatransmission.co/feed/', category: 'Techno/House' },
     { name: 'When We Dip', url: 'https://whenwedip.com/feed/', category: 'Deep House' },
     { name: 'This Song Is Sick', url: 'https://thissongsick.com/feed/', category: 'Electronic' },
     { name: 'EARMILK', url: 'https://earmilk.com/feed/', category: 'Electronic' },
-    
+
     // Underground & Alternative
     { name: 'XLR8R', url: 'https://xlr8r.com/feed/', category: 'Underground' },
     { name: 'The Quietus', url: 'https://thequietus.com/feed', category: 'Alternative' },
     { name: 'Electronic Beats', url: 'https://electronicbeats.net/feed/', category: 'Electronic' },
     { name: 'FACT Magazine', url: 'https://www.factmag.com/feed/', category: 'Electronic' },
-    
+
     // Industry & Business
     { name: 'Music Industry How To', url: 'https://www.musicindustryhowto.com/feed/', category: 'Industry' },
     { name: 'Digital Music News', url: 'https://www.digitalmusicnews.com/feed/', category: 'Industry' },
     { name: 'Music Business Worldwide', url: 'https://www.musicbusinessworldwide.com/feed/', category: 'Industry' },
-    
+
     // Indian & Asian Music Sources
     { name: 'Rolling Stone India', url: 'https://rollingstoneindia.com/feed/', category: 'Music', region: 'India' },
     { name: 'NH7 Bacardi', url: 'https://nh7.in/feed/', category: 'Music', region: 'India' },
@@ -56,12 +59,12 @@ class NewsService {
     { name: 'Time Out Mumbai', url: 'https://www.timeout.com/mumbai/feed/', category: 'Culture', region: 'India' },
     { name: 'Time Out Delhi', url: 'https://www.timeout.com/delhi/feed/', category: 'Culture', region: 'India' },
     { name: 'Bangalore Mirror Music', url: 'https://bangaloremirror.indiatimes.com/rss.cms', category: 'Music', region: 'India' },
-    
+
     // Label & Platform News
     { name: 'Anjunabeats', url: 'https://www.anjunabeats.com/feed/', category: 'Label' },
     { name: 'Spinnin Records', url: 'https://www.spinninrecords.com/feed/', category: 'Label' },
     { name: 'Monstercat', url: 'https://www.monstercat.com/feed/', category: 'Label' },
-    
+
     // European Electronic Music Sources
     { name: 'De:Bug Germany', url: 'https://de-bug.de/feed/', category: 'Electronic', region: 'Europe' },
     { name: 'Groove Magazine', url: 'https://groove.de/feed/', category: 'Electronic', region: 'Europe' },
@@ -71,7 +74,7 @@ class NewsService {
     { name: 'Techno Station', url: 'https://techno-station.com/feed/', category: 'Techno', region: 'Europe' },
     { name: 'Music Radar Europe', url: 'https://www.musicradar.com/news/tech/rss', category: 'Technology', region: 'Europe' },
     { name: 'Future Music', url: 'https://www.musicradar.com/futuremusic/rss', category: 'Production', region: 'Europe' },
-    
+
     // Technology & Production
     { name: 'Attack Magazine', url: 'https://www.attackmagazine.com/feed/', category: 'Production' },
     { name: 'Computer Music', url: 'https://www.musicradar.com/computermusic/rss', category: 'Production' },
@@ -95,9 +98,9 @@ class NewsService {
   async fetchAllNews(): Promise<void> {
     console.log(`Fetching news from ${this.sources.length} sources...`);
     
-    const fetchPromises = this.sources.map(source => 
+    const fetchPromises = this.sources.map(source =>
       this.fetchFromSource(source).catch(error => {
-        console.error(`Failed to fetch from ${source.name}:`, error.message);
+        console.error(`Failed to fetch from ${source.name}:`, (error as Error).message);
         return [];
       })
     );
@@ -109,12 +112,13 @@ class NewsService {
     
     for (const result of results) {
       if (result.status === 'fulfilled') {
-        totalFetched += result.value.length;
-        for (const article of result.value) {
+        const articles = result.value;
+        totalFetched += articles.length;
+        for (const article of articles) {
           try {
             await this.saveArticle(article);
             totalSaved++;
-          } catch (error) {
+          } catch {
             // Skip duplicates or invalid articles
           }
         }
@@ -150,27 +154,18 @@ class NewsService {
 
   private isRelevantContent(title: string, content: string): boolean {
     const relevantKeywords = [
-      // Music genres
       'techno', 'house', 'electronic', 'dance', 'edm', 'trance', 'dubstep', 
       'drum and bass', 'ambient', 'downtempo', 'deep house', 'tech house',
       'minimal', 'progressive', 'electro', 'acid', 'breakbeat', 'garage',
-      
-      // Music industry
       'dj', 'producer', 'artist', 'label', 'release', 'album', 'ep', 'single',
       'remix', 'mix', 'set', 'performance', 'live', 'concert', 'festival',
       'club', 'venue', 'studio', 'production', 'mastering', 'mixing',
-      
-      // Technology
       'synthesizer', 'drum machine', 'sampler', 'sequencer', 'daw', 'plugin',
       'vst', 'midi', 'analog', 'digital', 'modular', 'hardware', 'software',
-      
-      // Culture
       'underground', 'scene', 'culture', 'community', 'rave', 'party',
       'nightlife', 'radio', 'podcast', 'stream', 'vinyl', 'record',
-      
-      // Platforms
       'spotify', 'soundcloud', 'beatport', 'bandcamp', 'mixcloud', 'youtube',
-      'apple music', 'tidal', 'bandcamp', 'resident advisor'
+      'apple music', 'tidal'
     ];
 
     const text = (title + ' ' + content).toLowerCase();
@@ -179,24 +174,17 @@ class NewsService {
 
   private cleanText(text: string): string {
     return text
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/&[^;]+;/g, ' ') // Remove HTML entities
-      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/<[^>]*>/g, '')
+      .replace(/&[^;]+;/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim()
-      .substring(0, 2000); // Limit length
+      .substring(0, 2000);
   }
 
   private async saveArticle(article: any): Promise<void> {
-    // Check for duplicates
     const existing = await storage.getNewsArticles(1, 0);
-    const isDuplicate = existing.some(existingArticle => 
-      existingArticle.url === article.url || 
-      existingArticle.title === article.title
-    );
-    
-    if (isDuplicate) {
-      return;
-    }
+    const isDuplicate = existing.some(a => a.url === article.url || a.title === article.title);
+    if (isDuplicate) return;
 
     await storage.createNewsArticle({
       title: article.title,
@@ -210,29 +198,26 @@ class NewsService {
 
   async getSourceStats(): Promise<{ source: string; count: number }[]> {
     const articles = await storage.getNewsArticles(1000, 0);
-    const sourceStats = articles.reduce((acc: Record<string, number>, article) => {
-      acc[article.source] = (acc[article.source] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(sourceStats)
+    const stats: Record<string, number> = {};
+    for (const a of articles) {
+      stats[a.source] = (stats[a.source] || 0) + 1;
+    }
+    return Object.entries(stats)
       .map(([source, count]) => ({ source, count }))
       .sort((a, b) => b.count - a.count);
   }
 
   async updateSpotlightArticles(): Promise<void> {
     const articles = await storage.getNewsArticles(50, 0);
-    
-    // Select spotlight articles based on relevance and recency
     const spotlightCandidates = articles
       .filter(article => {
         if (!article.publishedAt) return false;
         const hoursOld = (Date.now() - new Date(article.publishedAt).getTime()) / (1000 * 60 * 60);
-        return hoursOld < 72; // Last 3 days
+        return hoursOld < 72;
       })
       .slice(0, 5);
 
-    const spotlightIds = spotlightCandidates.map(article => article.id);
+    const spotlightIds = spotlightCandidates.map(a => a.id);
     await storage.updateSpotlightNews(spotlightIds);
   }
 

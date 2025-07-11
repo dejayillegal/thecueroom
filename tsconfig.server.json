@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",         // ← emit require()/exports
-    "moduleResolution": "node",
+    "moduleResolution": "node",   // ← allow extension-less imports
     "esModuleInterop": true,
     "allowJs": false,
     "skipLibCheck": true,
