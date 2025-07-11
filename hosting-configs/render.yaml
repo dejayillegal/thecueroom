@@ -1,77 +1,70 @@
-# Render Configuration for TheCueRoom Full-Stack Deployment
+# render.yaml
+
 services:
-  # Web Service (Backend)
+  # Backend API service
   - type: web
     name: thecueroom-api
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    repo: https://github.com/dejayillegal/thecueroom
+    branch: main
+    buildCommand: |
+      NPM_CONFIG_PRODUCTION=false npm install
+      npm run build:shared
+      npm run build:server
     startCommand: npm run start
+    # Health-check endpoint so Render won’t return 502 if your app is up
+    healthCheckPath: /health
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         fromDatabase:
           name: thecueroom-db
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-      - key: GMAIL_USER
-        sync: false
-      - key: GMAIL_APP_PASSWORD
-        sync: false
-      - key: ADMIN_EMAIL
-        value: admin@thecueroom.xyz
-      - key: SUPPORT_EMAIL
+      - key: CLIENT_URL
+        value: https://dejayillegal.github.io
+      - key: SMTP_HOST        # ← replace with your SMTP host
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT        # ← replace with your SMTP port
+        value: "587"
+      - key: SMTP_USER        # ← replace with your SMTP username
+        value: 9108c5001@smtp-brevo.com
+      - key: SMTP_PASS        # ← or store in a Render Secret and reference it here
+        value: your_smtp_password
+      - key: FROM_EMAIL       # email address used in From: header
         value: support@thecueroom.xyz
-      - key: FROM_EMAIL
-        value: support@thecueroom.xyz
-    domains:
-      - api.thecueroom.xyz
-    healthCheckPath: /api/health
 
-  # Static Site (Frontend)
+  # Frontend static site
   - type: static
     name: thecueroom-frontend
-    buildCommand: npm install && npm run build && node scripts/build-static.js
+    env: node
+    plan: free
+    repo: https://github.com/dejayillegal/thecueroom
+    branch: main
+    buildCommand: |
+      NPM_CONFIG_PRODUCTION=false npm ci
+      npm run build
     staticPublishPath: dist
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: VITE_API_URL
-        value: https://api.thecueroom.xyz
-      - key: VITE_DOMAIN
-        value: thecueroom.xyz
-      - key: VITE_SITE_URL
-        value: https://thecueroom.xyz
-    domains:
-      - thecueroom.xyz
-      - www.thecueroom.xyz
+      - key: VITE_BASE_PATH
+        value: /thecueroom/
+      - key: VITE_API_BASE_URL
+        value: https://thecueroom-api.onrender.com
     routes:
+      # 1) Serve any matching file from dist/ first
+      - type: filesystem
+      # 2) Proxy all /api calls to your backend service
       - type: rewrite
         source: /api/*
-        destination: https://api.thecueroom.xyz/api/*
+        destination: https://thecueroom-api.onrender.com/api/*
+      # 3) SPA fallback for all other routes
       - type: rewrite
         source: /*
         destination: /index.html
 
-# Database
 databases:
   - name: thecueroom-db
     databaseName: thecueroom
     user: thecueroom_user
     plan: free
-
-# Build settings
-buildCommand: |
-  # Install dependencies
-  npm install
-  
-  # Build backend
-  npm run build
-  
-  # Build frontend
-  cd client && npm run build
-  
-  # Generate static pages
-  node ../scripts/build-static.js
