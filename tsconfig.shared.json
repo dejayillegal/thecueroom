@@ -1,20 +1,20 @@
 // tsconfig.shared.json
 {
   "compilerOptions": {
-    "rootDir": "shared",          // where your shared code actually lives
+    "rootDir": "shared",          
     "outDir": "dist/shared",
+
     "declaration": true,
     "declarationMap": true,
-    "module": "commonjs",
-    "target": "es2020",
 
-    // these two stop TypeScript from chewing on your node_modules type files
+    "module": "commonjs",         // ← emit require()/exports
+    "target": "ES2020",
     "moduleResolution": "node",
     "skipLibCheck": true,
 
-    // don’t load any @types/* by default
-    "types": ["node"] 
+    // no automatic @types loaded
+    "types": []
   },
-  "include": ["shared/**/*"],     // only your shared code
+  "include": ["shared/**/*"],
   "exclude": ["node_modules", "dist"]
 }
