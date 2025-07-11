@@ -1,18 +1,27 @@
-// tsconfig.server.json
 {
   "compilerOptions": {
-    "outDir": "dist/server",
-    "rootDir": "server",
+    "target": "ES2020",
     "module": "commonjs",
-    "target": "es2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "allowJs": true,
+
+    // Don’t try to compile any .js
+    "allowJs": false,
+
+    // Your server source root & output
+    "rootDir": "server",
+    "outDir": "dist/server",
+
+    // Type-only imports for @shared
     "baseUrl": ".",
-    "paths": { 
-      "@shared/*": ["dist/shared/*.js"]
-    }
+    "paths": {
+      "@shared/*": ["dist/shared/*.d.ts"]
+    },
+
+    // Skip checking of lib .d.ts files for speed & noise
+    "skipLibCheck": true
   },
-  "include": ["server/**/*.ts"],
-  "exclude": ["node_modules", "dist", "client", "vite.config.ts"]
+
+  // Only compile your server .ts files
+  "include": ["server/**/*.ts"]
 }
