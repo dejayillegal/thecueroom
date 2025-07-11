@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",            // emit ESM imports/exports
+    "module": "Node16",            // emit ESM imports/exports
     "moduleResolution": "node16",  // Node‐style resolution for ESM
     "esModuleInterop": true,
     "allowJs": false,
