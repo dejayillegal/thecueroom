@@ -9,12 +9,13 @@
     "node": ">=18 <22"
   },
   "scripts": {
+    "preinstall": "npm install -g npm@11.3.0",
     "clean": "rm -rf node_modules package-lock.json",
     "build:shared": "tsc -p tsconfig.shared.json && echo '{\"type\":\"commonjs\"}' > dist/shared/package.json",
     "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\",\"_moduleAliases\":{\"@shared\":\"../shared\"}}' > dist/server/package.json",
     "predeploy": "npm run build:client",
     "deploy": "gh-pages -d dist/client",
-    "build:client": "VITE_BASE_PATH=/thecueroom/ vite build --ssrManifest",
+    "build:client": "cross-env VITE_BASE_PATH=/thecueroom/ vite build --ssrManifest",
     "build:static": "npm run build:client",
     "build": "npm run build:shared && npm run build:server && npm run build:static",
     "start": "echo 'Files in root/:' && ls -la . && echo 'Files in server/:' && ls -la server/ && echo 'path root/:' && pwd && NODE_ENV=production node dist/server/index.js",
@@ -28,6 +29,7 @@
     "@shared": "dist/shared"
   },
   "dependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.44.2",
     "@anthropic-ai/sdk": "^0.37.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
