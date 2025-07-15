@@ -151,7 +151,10 @@ export function setupAuth(app: Express): void {
   // Login
   app.post("/api/auth/login", (req, res, next) =>
     passport.authenticate("local", (err, user, info) => {
-      if (err)   return res.status(500).json({ message: "Auth error" });
+      if (err) {
+        console.error("Login auth error:", err);
+        return res.status(500).json({ message: "Auth error" });
+      }
       if (!user) return res.status(401).json({ message: info?.message || "Denied" });
       if ((user as any).forcePasswordChange) {
         return res.status(202).json({
