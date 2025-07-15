@@ -32,7 +32,7 @@ const allowedOrigins = [
 const corsOptions: cors.CorsOptions = {
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   credentials: true,
   optionsSuccessStatus: 200,
 };
