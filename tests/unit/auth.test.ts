@@ -1,7 +1,7 @@
 import 'module-alias/register';
 import { describe, it, expect } from 'vitest';
 // Use built server module for stable imports during tests
-import { generateTemporaryPassword } from '../../dist/server/auth.js';
+import { generateTemporaryPassword, hashPassword, comparePasswords } from '../../dist/server/auth.js';
 
 function hasUpper(str: string) {
   return /[A-Z]/.test(str);
@@ -28,5 +28,18 @@ describe('generateTemporaryPassword', () => {
     expect(hasLower(pwd)).toBe(true);
     expect(hasDigit(pwd)).toBe(true);
     expect(hasSpecial(pwd)).toBe(true);
+  });
+});
+
+describe('password hashing and comparison', () => {
+  it('hashes and compares passwords correctly', async () => {
+    const hashed = await hashPassword('secret');
+    const result = await comparePasswords('secret', hashed);
+    expect(result).toBe(true);
+  });
+
+  it('returns false for invalid stored format', async () => {
+    const result = await comparePasswords('secret', 'invalid');
+    expect(result).toBe(false);
   });
 });
