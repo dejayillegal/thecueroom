@@ -72,7 +72,7 @@ app.post('/api/posts', async (req, res) => {
     
     const post = await storage.createPost({
       ...req.body,
-      userId: req.user.id
+      userId: (req.user as any).id
     });
     res.status(201).json(post);
   } catch (error) {
