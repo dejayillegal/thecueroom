@@ -25,6 +25,8 @@ export default ({ mode }) => {
       // 2) Generate the SSR manifest (ssr-manifest.json)
       ssrManifest: true,
 
+      sourcemap: true,
+
       // (Optional) tweak Rollup if you need a custom input:
       // rollupOptions: {
       //   input: path.resolve(__dirname, 'client/index.html'),
