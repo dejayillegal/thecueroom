@@ -10,6 +10,7 @@
   },
   "scripts": {
     "preinstall": "npm install -g npm@11.3.0",
+    "postinstall": "if [ \"$(uname -s)\" = \"Linux\" ]; then npm install @rollup/rollup-linux-x64-gnu@4.44.2 @esbuild/linux-x64@0.21.5 --no-save; fi",
     "clean": "rm -rf node_modules package-lock.json",
     "build:shared": "tsc -p tsconfig.shared.json && echo '{\"type\":\"commonjs\"}' > dist/shared/package.json",
     "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\",\"_moduleAliases\":{\"@shared\":\"../shared\"}}' > dist/server/package.json",
@@ -28,8 +29,12 @@
   "_moduleAliases": {
     "@shared": "dist/shared"
   },
+  "engines": {
+     "node": ">=18 <22"
+   },
   "dependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.44.2",
+    "@esbuild/linux-x64": "0.21.5",
     "@anthropic-ai/sdk": "^0.37.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
