@@ -24,6 +24,7 @@ export async function hashPassword(password: string): Promise<string> {
   return `${buf.toString("hex")}.${salt}`;
 }
 
+
 async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
   try {
     const [hashed, salt] = stored.split(".");
@@ -33,6 +34,20 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
     if (hashedBuf.length !== suppliedBuf.length) return false;
     return timingSafeEqual(hashedBuf, suppliedBuf);
   } catch {
+
+export async function comparePasswords(
+  supplied: string,
+  stored: string
+): Promise<boolean> {
+  try {
+    const [hashed, salt] = stored.split('.');
+    if (!hashed || !salt) return false;
+    const hashedBuf = Buffer.from(hashed, 'hex');
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (err) {
+    console.error('Password comparison failed:', err);
+
     return false;
   }
 }
@@ -139,7 +154,7 @@ export function setupAuth(app: Express): void {
     }
   ));
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user: any, done) => done(null, (user as any).id));
   passport.deserializeUser(async (id: string, done) => {
     try {
       const user = await storage.getUser(id);
@@ -157,7 +172,10 @@ export function setupAuth(app: Express): void {
   // Login
   app.post("/api/auth/login", (req, res, next) =>
     passport.authenticate("local", (err, user, info) => {
-      if (err)   return res.status(500).json({ message: "Auth error" });
+      if (err) {
+        console.error("Login auth error:", err);
+        return res.status(500).json({ message: "Auth error" });
+      }
       if (!user) return res.status(401).json({ message: info?.message || "Denied" });
       if ((user as any).forcePasswordChange) {
         return res.status(202).json({

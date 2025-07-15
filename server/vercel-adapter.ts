@@ -9,11 +9,24 @@ import cors from 'cors';
 const app = express();
 
 // CORS configuration for production
+const allowedOrigins = [
+  'https://thecueroom.xyz',
+  'https://www.thecueroom.xyz',
+  'https://dejayillegal.github.io',
+];
+
 app.use(cors({
-  origin: ['https://thecueroom.xyz', 'https://www.thecueroom.xyz'],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -68,7 +81,7 @@ app.post('/api/posts', async (req, res) => {
     
     const post = await storage.createPost({
       ...req.body,
-      userId: req.user.id
+      userId: (req.user as any).id
     });
     res.status(201).json(post);
   } catch (error) {

@@ -17,6 +17,26 @@ moduleAlias.addAlias(
 
 const app = express();
 
+// Trust proxy for Replit deployment
+app.set("trust proxy", 1);
+
+// CORS configuration
+app.use(cors({
+  origin: [
+    "https://dejayillegal.github.io",
+    "http://localhost:5173",
+    "http://localhost:5000",
+    /\.replit\.dev$/,
+    /\.repl\.co$/
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
+}));
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.static("dist/public"));
+
 // ─── 1) CORS ────────────────────────────────────────────────────────────────────────────
 // Strictly match your GitHub Pages origin here
 const clientOrigin = process.env.CLIENT_URL || 'https://dejayillegal.github.io';
@@ -30,7 +50,14 @@ const allowedOrigins = [
 ];
 
 const corsOptions: cors.CorsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   credentials: true,

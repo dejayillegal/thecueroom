@@ -43,7 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.post('/api/users/verify', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { links } = req.body;
       
       // Validate verification links
@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         action: 'delete',
         reason: 'User deleted by admin',
         details: 'Deleted by admin via /api/users/:id',   // ← new, non-nullable
-        moderatorId: req.user.id,
+        moderatorId: (req.user as any).id,
         isAutoModerated: false,
       });
       
@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         action: 'password_reset',
         reason: 'Password reset by admin',
         details: 'Password reset by admin via /api/users/:id',   // ← new, non-nullable
-        moderatorId: req.user.id,
+        moderatorId: (req.user as any).id,
         isAutoModerated: false,
       });
       
@@ -150,7 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/users/:id/activate', requireAuth, requireAdmin, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const adminId = req.user.id;
+      const adminId = (req.user as any).id;
       const { forceActivate } = req.body; // Allow admin to force activate without email verification
       
       const user = await storage.getUser(id);
@@ -197,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: forceActivate
           ? 'Activated (forced) via PATCH /api/users/:id/activate'
           : 'Activated via PATCH /api/users/:id/activate',
-        moderatorId: req.user.id,
+        moderatorId: (req.user as any).id,
         isAutoModerated: false,
       });
 
@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/users/:id/verify-email', requireAuth, requireAdmin, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const adminId = req.user.id;
+      const adminId = (req.user as any).id;
       
       const user = await storage.getUser(id);
       if (!user) {
@@ -321,8 +321,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Post routes
   app.post('/api/posts', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
-      const raw = { ...req.body, userId: req.user.id };
+      const userId = (req.user as any).id;
+      const raw = { ...req.body, userId: (req.user as any).id };
       const postData = insertPostSchema.parse(raw) as InsertPostInput;
       
       // Content moderation
@@ -368,7 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Reaction system - upsert one reaction per user per post
   app.post('/api/posts/:id/react', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const postId = parseInt(req.params.id);
       const { reactionType } = req.body;
       
@@ -411,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Delete user's reaction from a post
   app.delete('/api/posts/:id/react', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const postId = parseInt(req.params.id);
       
       await storage.deletePostReaction(userId, postId);
@@ -548,7 +548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/posts/:id', requireAuth, async (req: any, res) => {
     try {
       const postId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       
       const post = await storage.getPost(postId);
       if (!post) {
@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status, priority, resolution, assignedTo } = req.body;
-      const adminId = req.user.id;
+      const adminId = (req.user as any).id;
       
       const updates: any = {};
       if (status) updates.status = status;
@@ -737,7 +737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/support/tickets/:id', requireAuth, requireAdmin, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const adminId = req.user.id;
+      const adminId = (req.user as any).id;
       
       await storage.deleteSupportTicket(parseInt(id));
       
@@ -763,7 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/admin-reset-password', requireAuth, requireAdmin, async (req: any, res) => {
     try {
       const { email, ticketId } = req.body;
-      const adminId = req.user.id;
+      const adminId = (req.user as any).id;
       
       if (!email || !ticketId) {
         return res.status(400).json({ message: 'Email and ticket ID are required' });
@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comment routes
   app.post('/api/comments', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const commentData = insertCommentSchema.parse({ ...req.body, userId });
       
       // Content moderation
@@ -864,7 +864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Settings endpoints
   app.patch("/api/auth/profile", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { firstName, lastName, stageName, bio, city } = req.body;
       
       const updatedUser = await storage.updateUserProfile(userId, {
@@ -884,7 +884,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/auth/password", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { currentPassword, newPassword } = req.body;
       
       const user = await storage.getUser(userId);
@@ -912,7 +912,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/auth/account", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       await storage.deleteUser(userId);
       
       res.json({ message: "Account deleted successfully" });
@@ -925,7 +925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Avatar save endpoint
   app.patch('/api/user/avatar', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { avatarUrl } = req.body;
       
       if (!avatarUrl) {
@@ -963,7 +963,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meme routes
   app.post('/api/memes', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { prompt, category } = req.body;
       
       // Generate meme using AI
@@ -994,7 +994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/memes/generate', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { prompt, category } = req.body;
       
       // Generate meme using AI
@@ -1370,7 +1370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/posts/:id/react', requireAuth, async (req: any, res) => {
     try {
       const postId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { reaction } = req.body;
       
       // Validate reaction type
@@ -1407,7 +1407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/posts/:id/comments', requireAuth, async (req: any, res) => {
     try {
       const postId = parseInt(req.params.id);
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { content, mentions, memeImageUrl, memeImageData } = req.body;
       
       if (!content || content.trim().length === 0) {
@@ -1551,7 +1551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Avatar routes
   app.post('/api/avatar/generate', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { config } = req.body;
       
       const avatarUrl = await avatarService.generateAvatar(config);
@@ -1598,7 +1598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/moderation/moderate', requireAuth, requireAdmin, async (req: any, res) => {
     try {
       const { targetType, targetId, action, reason } = req.body;
-      const moderatorId = req.user.id;
+      const moderatorId = (req.user as any).id;
       
       // Apply moderation action
       if (targetType === 'post') {
@@ -1634,7 +1634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // 1) Validate only the things coming from the client:
     const input = insertMusicProfileSchema.parse({
-      userId:   req.user.id,
+      userId:   (req.user as any).id,
       platform: validation.platform,
       profileUrl,
     });
@@ -1681,7 +1681,7 @@ app.post("/api/music/tracks", requireAuth, async (req, res) => {
     // 1) Validate
     const validated = insertTrackSchema.parse({
       ...req.body,
-      userId: req.user.id,
+      userId: (req.user as any).id,
     });
 
     // 2) Build a loose payload so we can tack on embedCode
@@ -1739,7 +1739,7 @@ app.post("/api/music/tracks", requireAuth, async (req, res) => {
 
   app.post('/api/music/tracks/:id/like', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const trackId = parseInt(req.params.id);
       
       const liked = await storage.toggleTrackLike(userId, trackId);
@@ -1752,7 +1752,7 @@ app.post("/api/music/tracks", requireAuth, async (req, res) => {
 
   app.post('/api/music/playlists', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const playlistData = insertCuratedPlaylistSchema.parse({ ...req.body, curatorId: userId });
       
       const playlist = await storage.createCuratedPlaylist(playlistData);
@@ -2010,7 +2010,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
         followerCount: req.body.followerCount || null
       });
 
-      await loggingService.logAdminAction(req.user.id, 'create_spotify_playlist', `Created Spotify playlist: ${name}`, req);
+      await loggingService.logAdminAction((req.user as any).id, 'create_spotify_playlist', `Created Spotify playlist: ${name}`, req);
       res.json(playlist);
     } catch (error) {
       console.error("Error creating Spotify playlist:", error);
@@ -2030,7 +2030,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
         genre
       });
 
-      await loggingService.logAdminAction(req.user.id, 'update_spotify_playlist', `Updated Spotify playlist: ${name}`, req);
+      await loggingService.logAdminAction((req.user as any).id, 'update_spotify_playlist', `Updated Spotify playlist: ${name}`, req);
       res.json(playlist);
     } catch (error) {
       console.error("Error updating Spotify playlist:", error);
@@ -2042,7 +2042,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
     try {
       const { id } = req.params;
       await storage.deletePlaylist(parseInt(id));
-      await loggingService.logAdminAction(req.user.id, 'delete_spotify_playlist', `Deleted Spotify playlist ID: ${id}`, req);
+      await loggingService.logAdminAction((req.user as any).id, 'delete_spotify_playlist', `Deleted Spotify playlist ID: ${id}`, req);
       res.json({ message: "Playlist deleted successfully" });
     } catch (error) {
       console.error("Error deleting Spotify playlist:", error);
@@ -2064,7 +2064,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
         mood,
         description,
         trackCount,
-        userId: req.user.id
+        userId: (req.user as any).id
       });
 
       const playlist = await storage.createCuratedPlaylist({
@@ -2073,11 +2073,11 @@ Make it engaging and authentic to underground music culture. Respond with only a
         genre,
         mood: mood || null,
         trackIds: generatedPlaylist.tracks,
-        curatorId: req.user.id,
+        curatorId: (req.user as any).id,
         isPublic: true
       });
 
-      await loggingService.logUserAction(req.user.id, 'generate_playlist', `Generated AI playlist: ${generatedPlaylist.title}`, req);
+      await loggingService.logUserAction((req.user as any).id, 'generate_playlist', `Generated AI playlist: ${generatedPlaylist.title}`, req);
       res.json(playlist);
     } catch (error) {
       console.error("Error generating AI playlist:", error);
@@ -2158,7 +2158,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
     try {
       const { templateId } = req.params;
       const { texts } = req.body;
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       
       const memeImageUrl = await memeService.generateMemeWithTemplate(templateId, texts);
       
@@ -2181,7 +2181,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
   app.post('/api/memes/generate/ai', requireAuth, async (req: any, res) => {
     try {
       const { prompt } = req.body;
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       
       const memeImageUrl = await memeService.generateAIMeme(prompt);
       
@@ -2236,7 +2236,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
   // Fix Settings Update Route
   app.put('/api/auth/profile', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { firstName, lastName, stageName, city, bio } = req.body;
       
       const changes: string[] = [];
@@ -2275,7 +2275,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
 
   app.put('/api/auth/password', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const { currentPassword, newPassword } = req.body;
       
       const user = await storage.getUser(userId);
@@ -2367,7 +2367,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
   app.post('/api/admin/settings', requireAuth, isAdmin, async (req: any, res) => {
     try {
       const { settingKey, settingValue, description } = req.body;
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       
       const setting = await storage.setAdminSetting({
         settingKey,
@@ -2387,7 +2387,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
     try {
       const { key } = req.params;
       const { settingValue } = req.body;
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       
       const setting = await storage.updateAdminSetting(key, settingValue, userId);
       res.json(setting);
