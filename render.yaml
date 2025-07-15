@@ -34,6 +34,8 @@ services:
         value: your_smtp_password
       - key: FROM_EMAIL       # email address used in From: header
         value: support@thecueroom.xyz
+      - key: NODE_VERSION
+        value: "20"
 
   # Frontend static site
   - type: static
@@ -45,12 +47,14 @@ services:
     buildCommand: |
       NPM_CONFIG_PRODUCTION=false npm ci
       npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_BASE_PATH
-        value: /thecueroom/
-      - key: VITE_API_BASE_URL
-        value: https://thecueroom-api.onrender.com
+      staticPublishPath: dist
+      envVars:
+        - key: NODE_VERSION
+          value: "20"
+        - key: VITE_BASE_PATH
+          value: /thecueroom/
+        - key: VITE_API_BASE_URL
+          value: https://thecueroom-api.onrender.com
     routes:
       # 1) Serve any matching file from dist/ first
       - type: filesystem

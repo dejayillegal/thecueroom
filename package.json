@@ -5,6 +5,9 @@
   "type": "module",
   "homepage": "https://dejayillegal.github.io/thecueroom/",
   "license": "MIT",
+  "engines": {
+    "node": ">=18 <22"
+  },
   "scripts": {
     "clean": "rm -rf node_modules package-lock.json",
     "build:shared": "tsc -p tsconfig.shared.json && echo '{\"type\":\"commonjs\"}' > dist/shared/package.json",
