@@ -26,7 +26,12 @@ export async function checkDatabaseHealth(): Promise<HealthCheckResult> {
     
     return {
       service: 'database',
-      status: responseTime < 100 ? 'healthy' : responseTime < 500 ? 'degraded' : 'unhealthy',
+      status:
+        responseTime < 400
+          ? 'healthy'
+          : responseTime < 1000
+            ? 'degraded'
+            : 'unhealthy',
       responseTime,
       details: {
         provider: getServiceConfiguration().database.provider,
