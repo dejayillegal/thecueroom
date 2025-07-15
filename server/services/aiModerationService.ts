@@ -1,12 +1,11 @@
 import OpenAI from "openai";
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY environment variable must be set");
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+} else {
+  console.warn("OpenAI API key not provided; AI moderation disabled");
 }
-
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
 
 export interface ModerationResult {
   approved: boolean;
@@ -27,6 +26,14 @@ export interface BotResponse {
 export class AIModerationService {
   // Comprehensive content moderation using AI
   static async moderateContent(content: string, context?: string): Promise<ModerationResult> {
+    if (!openai) {
+      return {
+        approved: true,
+        confidence: 0.5,
+        violations: [],
+        requiresHumanReview: false
+      };
+    }
     try {
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
@@ -88,10 +95,13 @@ Analyze content and respond with JSON only.`
 
   // Enhanced @thecueroom bot responses with AI analysis
   static async generateBotResponse(
-    mentionContent: string, 
-    postContent: string, 
+    mentionContent: string,
+    postContent: string,
     userContext?: any
   ): Promise<BotResponse> {
+    if (!openai) {
+      return { shouldRespond: false, context: "OpenAI disabled", confidence: 0 };
+    }
     try {
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
@@ -166,6 +176,9 @@ Keep responses concise, helpful, and music-focused. Respond with JSON only.`
     musicGenres: string[];
     suggestions: string[];
   }> {
+    if (!openai) {
+      return { topics: [], sentiment: 0, musicGenres: [], suggestions: [] };
+    }
     try {
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
