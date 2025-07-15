@@ -1,5 +1,7 @@
+import 'module-alias/register';
 import { describe, it, expect } from 'vitest';
-import { generateTemporaryPassword } from '../../server/auth';
+// Use built server module for stable imports during tests
+import { generateTemporaryPassword } from '../../dist/server/auth.js';
 
 function hasUpper(str: string) {
   return /[A-Z]/.test(str);
