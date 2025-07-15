@@ -14,7 +14,7 @@
     "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\",\"_moduleAliases\":{\"@shared\":\"../shared\"}}' > dist/server/package.json",
     "predeploy": "npm run build:client",
     "deploy": "gh-pages -d dist/client",
-    "build:client": "cross-env VITE_BASE_PATH=/thecueroom/ vite build --ssrManifest",
+    "build:client": "VITE_BASE_PATH=/thecueroom/ vite build --ssrManifest",
     "build:static": "npm run build:client",
     "build": "npm run build:shared && npm run build:server && npm run build:static",
     "start": "echo 'Files in root/:' && ls -la . && echo 'Files in server/:' && ls -la server/ && echo 'path root/:' && pwd && NODE_ENV=production node dist/server/index.js",
