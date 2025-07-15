@@ -6,6 +6,7 @@
   "homepage": "https://dejayillegal.github.io/thecueroom/",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf node_modules package-lock.json",
     "build:shared": "tsc -p tsconfig.shared.json && echo '{\"type\":\"commonjs\"}' > dist/shared/package.json",
     "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\",\"_moduleAliases\":{\"@shared\":\"../shared\"}}' > dist/server/package.json",
     "predeploy": "npm run build:client",
