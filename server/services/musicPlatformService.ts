@@ -1,6 +1,11 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+} else {
+  console.warn("OpenAI API key not provided; music platform AI features disabled");
+}
 
 interface PlatformProfile {
   platform: string;
@@ -136,6 +141,11 @@ class MusicPlatformService {
 
   // Generate platform-specific content recommendations
   async generatePlatformStrategy(artistProfile: ArtistProfile, genre: string): Promise<string> {
+    if (!openai) {
+      return JSON.stringify({
+        general: "Focus on consistent posting, engage with your community, and cross-promote between platforms"
+      });
+    }
     try {
       const platforms = Object.keys(artistProfile).filter(key => artistProfile[key as keyof ArtistProfile]);
       
@@ -206,6 +216,16 @@ Provide specific, actionable advice in JSON format with sections for each platfo
 
   // Generate curated playlists based on user preferences
   async generateCuratedPlaylist(genre: string, mood: string, bpmRange: [number, number]): Promise<PlaylistData> {
+    if (!openai) {
+      return {
+        name: `${genre} ${mood} Mix`,
+        description: `A collection of ${genre} tracks perfect for ${mood} moments`,
+        tracks: [],
+        platform: 'TheCueRoom',
+        url: '#',
+        isPublic: true
+      };
+    }
     try {
       const prompt = `Create a curated ${genre} playlist for ${mood} mood with BPM range ${bpmRange[0]}-${bpmRange[1]}. 
 
