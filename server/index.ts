@@ -21,11 +21,25 @@ const app = express();
 // Strictly match your GitHub Pages origin here
 const clientOrigin = process.env.CLIENT_URL || 'https://dejayillegal.github.io';
 
-const corsOptions = {
-  origin: clientOrigin,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
-  credentials: true as const,
+// Allow multiple frontend origins (GitHub Pages & custom domains)
+const allowedOrigins = [
+  clientOrigin,
+  'https://dejayillegal.github.io',
+  'https://thecueroom.xyz',
+  'https://www.thecueroom.xyz',
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 };
 
 // Preflight for ALL routes
