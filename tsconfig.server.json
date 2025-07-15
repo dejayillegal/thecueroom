@@ -16,5 +16,5 @@
       "@shared/*": ["dist/shared/*.js"]
     }
   },
-  "include": ["server/**/*.ts"]
+  "include": ["server/**/*.ts", "global.d.ts"]
 }

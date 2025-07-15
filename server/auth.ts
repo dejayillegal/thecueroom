@@ -133,7 +133,7 @@ export function setupAuth(app: Express): void {
     }
   ));
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user: any, done) => done(null, (user as any).id));
   passport.deserializeUser(async (id: string, done) => {
     try {
       const user = await storage.getUser(id);
