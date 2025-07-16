@@ -34,6 +34,7 @@ import {
   ListMusic
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Navbar() {
   const [location, navigate] = useLocation();
@@ -154,20 +155,20 @@ export default function Navbar() {
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={async () => {
-                  try {
-                    await fetch('/api/auth/logout', { method: 'POST' });
-                    // Clear auth cache and redirect
-                    queryClient.setQueryData(['/api/auth/user'], null);
-                    queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-                    window.location.href = '/'; // Force full page reload
-                  } catch (error) {
-                    console.error('Logout error:', error);
-                    // Clear auth cache even on error
-                    queryClient.setQueryData(['/api/auth/user'], null);
-                    window.location.href = '/';
-                  }
-                }}>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    try {
+                      await apiRequest('POST', '/api/auth/logout');
+                      queryClient.setQueryData(['/api/auth/user'], null);
+                      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                      queryClient.setQueryData(['/api/auth/user'], null);
+                    } finally {
+                      window.location.href = '/';
+                    }
+                  }}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

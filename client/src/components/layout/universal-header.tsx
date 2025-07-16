@@ -19,6 +19,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Home,
   Search,
@@ -161,7 +162,17 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                     <DropdownMenuSeparator />
                     {user?.isAdmin && <Link href="/admin"><DropdownMenuItem>Admin Panel</DropdownMenuItem></Link>}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => window.location.href = '/api/auth/logout'}>Sign Out</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        try {
+                          await apiRequest('POST', '/api/auth/logout');
+                        } finally {
+                          window.location.href = '/';
+                        }
+                      }}
+                    >
+                      Sign Out
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -237,7 +248,16 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                           </div>
                         </Link>
                       )}
-                      <div onClick={() => window.location.href = '/api/auth/logout'} className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 text-gray-300 hover:text-white rounded-lg mx-2 cursor-pointer">
+                      <div
+                        onClick={async () => {
+                          try {
+                            await apiRequest('POST', '/api/auth/logout');
+                          } finally {
+                            window.location.href = '/';
+                          }
+                        }}
+                        className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 text-gray-300 hover:text-white rounded-lg mx-2 cursor-pointer"
+                      >
                         <LogOut className="w-5 h-5" />
                         <div className="flex flex-col">
                           <span className="font-medium">Sign Out</span>
