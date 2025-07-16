@@ -3,6 +3,7 @@
 // client/src/main.tsx
 import { createRoot } from "react-dom/client";
 import { Router } from "wouter";
+import { getRouterBase } from "./lib/router-config";
 import App from "./App";
 import "./index.css";
 
@@ -11,9 +12,8 @@ if (!container) throw new Error("Failed to find the root element");
 
 const root = createRoot(container);
 
-// Vite injects the build-time base public path here.
-// In dev this is "/", in prod on GitHub Pages it's "/thecueroom/".
-const base = import.meta.env.BASE_URL || "/";
+// Determine base path without trailing slash for wouter routing
+const base = getRouterBase();
 
 root.render(
   <Router base={base}>
