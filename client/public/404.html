@@ -6,17 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Page Not Found</title>
   <!-- Immediately redirect back to your base path -->
-  <meta http-equiv="refresh" content="0;url=%BASE_PATH%" />
   <script>
-    // Fallback JS redirect for browsers that ignore the meta tag:
-    window.location.replace((import.meta.env.VITE_BASE_PATH || "/") + window.location.pathname);
+    const base = import.meta.env.VITE_BASE_PATH || "/";
+    const prefix = base.endsWith("/") ? base : base + "/";
+    // Redirect preserving the original path for SPA routing
+    window.location.replace(prefix + window.location.pathname);
   </script>
 </head>
 <body>
   <h1>404 – Page Not Found</h1>
   <p>
     Redirecting you back to
-    <a href="%BASE_PATH%">home</a>…
+    <a href="javascript:void 0" onclick="history.back()">home</a>…
   </p>
 </body>
 </html>
