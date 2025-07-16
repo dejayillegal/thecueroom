@@ -1350,7 +1350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         genre: z.string(),
         subGenre: z.string().optional(),
       });
-      const parsed = schema.parse(requestData);
+      const parsed: any = schema.parse(requestData);
 
       const location = (parsed.location || '').toLowerCase();
       if (!location.includes('india') && !location.includes('bangalore')) {
@@ -1377,7 +1377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { genre, subGenre, ...gigData } = parsed;
-      const gig = await storage.createGig(gigData);
+      const gig = await storage.createGig({ ...gigData, isActive: false });
       res.json(gig);
     } catch (error) {
       if (error instanceof z.ZodError) {

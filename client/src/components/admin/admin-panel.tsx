@@ -248,6 +248,20 @@ export default function AdminPanel() {
     },
   });
 
+  const approveGigMutation = useMutation({
+    mutationFn: async (gigId: number) => {
+      const res = await apiRequest('PATCH', `/api/gigs/${gigId}`, { isActive: true });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gigs'] });
+      toast({ title: 'Gig approved', description: 'Gig is now visible to users.' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to approve gig', variant: 'destructive' });
+    }
+  });
+
   const handleDeleteUser = (userId: string) => {
     if (window.confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) {
       deleteUserMutation.mutate(userId);
@@ -594,6 +608,11 @@ export default function AdminPanel() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
+                    {!gig.isActive && (
+                      <Button size="sm" onClick={() => approveGigMutation.mutate(gig.id)}>
+                        Approve
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline">Edit</Button>
                     <Button size="sm" variant="destructive">
                       <Trash2 className="h-3 w-3" />

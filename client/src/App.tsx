@@ -26,6 +26,7 @@ import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
+import SubmitGig from "@/pages/submit-gig";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/profile" component={() => <AuthenticatedRoute component={Profile} />} />
       <Route path="/memes" component={() => <AuthenticatedRoute component={Memes} />} />
       <Route path="/gigs" component={() => <AuthenticatedRoute component={Gigs} />} />
+      <Route path="/submit-gig" component={() => <AuthenticatedRoute component={SubmitGig} />} />
       <Route path="/news" component={() => <AuthenticatedRoute component={News} />} />
       <Route path="/playlists" component={() => <AuthenticatedRoute component={Playlists} />} />
       <Route path="/music-platforms" component={() => <AuthenticatedRoute component={MusicPlatforms} />} />

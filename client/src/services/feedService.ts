@@ -369,6 +369,62 @@ class FeedService {
       category: 'guides',
       description: 'Synth news and production tips'
     },
+    {
+      url: 'https://romanmusictherapy.com/feed/',
+      name: 'Roman Music Therapy',
+      website: 'https://romanmusictherapy.com',
+      category: 'guides',
+      description: 'Music therapy insights and resources'
+    },
+    {
+      url: 'https://www.heartandharmony.com/feed/',
+      name: 'Heart and Harmony',
+      website: 'https://www.heartandharmony.com',
+      category: 'guides',
+      description: 'Music therapy blog and news'
+    },
+    {
+      url: 'https://musictherapyed.com/feed/',
+      name: 'Music Therapy Ed',
+      website: 'https://musictherapyed.com',
+      category: 'guides',
+      description: 'Music therapy education articles'
+    },
+    {
+      url: 'https://feeds.buzzsprout.com/2101894.rss',
+      name: 'The Music Therapy Podcast',
+      website: 'https://buzzsprout.com/2101894',
+      category: 'guides',
+      description: 'Music therapy podcast feed'
+    },
+    {
+      url: 'https://www.hypebot.com/feed',
+      name: 'Hypebot',
+      website: 'https://www.hypebot.com',
+      category: 'guides',
+      description: 'Music business tips and trends'
+    },
+    {
+      url: 'https://blog.airgigs.com/feed/',
+      name: 'AirGigs Blog',
+      website: 'https://blog.airgigs.com',
+      category: 'guides',
+      description: 'Advice for session musicians'
+    },
+    {
+      url: 'https://musictravelguide.net/feed/',
+      name: 'Music Travel Guide',
+      website: 'https://musictravelguide.net',
+      category: 'guides',
+      description: 'Travel tips for touring musicians'
+    },
+    {
+      url: 'https://www.musicianshealthcorner.com/blog/feed',
+      name: 'Musicians Health Corner',
+      website: 'https://www.musicianshealthcorner.com',
+      category: 'guides',
+      description: 'Health and wellness advice for musicians'
+    },
 
     // Gigs Category - India Events
     {
@@ -484,7 +540,7 @@ class FeedService {
         return [];
       }
 
-      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
 
       return data.items
         .map((item: any) => {
@@ -507,7 +563,7 @@ class FeedService {
           } as FeedItem;
         })
         .filter(item => item.title && item.title !== 'Untitled')
-        .filter(item => new Date(item.pubDate).getTime() >= oneWeekAgo);
+        .filter(item => new Date(item.pubDate).getTime() >= twoWeeksAgo);
 
     } catch (error) {
       console.error(`Error fetching ${source.name}:`, error);
