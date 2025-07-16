@@ -32,6 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { feedService, type FeedSource } from "@/services/feedService";
 
 interface AdminConfig {
   id: string;
@@ -412,6 +413,57 @@ export default function AdvancedAdminPanel() {
     );
   };
 
+  const CustomFeedManager = ({ section }: { section: string }) => {
+    const { data: feeds = [], refetch } = useQuery({
+      queryKey: ['/api/admin/custom-feeds'],
+    });
+    const addFeedMutation = useMutation({
+      mutationFn: async (feed: FeedSource) => {
+        return apiRequest('POST', '/api/admin/custom-feeds', feed);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/custom-feeds'] });
+        feedService.refreshCustomSources();
+        toast({ title: 'Feed added successfully' });
+      }
+    });
+    const [newFeed, setNewFeed] = useState<FeedSource>({
+      url: '',
+      name: '',
+      website: '',
+      category: section as any,
+      description: ''
+    });
+
+    return (
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Plus className="h-5 w-5" />
+            <span>Custom RSS Feeds</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Input placeholder="Feed URL" value={newFeed.url} onChange={e => setNewFeed(prev => ({ ...prev, url: e.target.value }))} />
+            <Input placeholder="Name" value={newFeed.name} onChange={e => setNewFeed(prev => ({ ...prev, name: e.target.value }))} />
+            <Input placeholder="Website" value={newFeed.website} onChange={e => setNewFeed(prev => ({ ...prev, website: e.target.value }))} />
+            <Textarea placeholder="Description" value={newFeed.description} onChange={e => setNewFeed(prev => ({ ...prev, description: e.target.value }))} />
+          </div>
+          <Button onClick={() => addFeedMutation.mutate(newFeed)}>Add Feed</Button>
+
+          <Separator />
+
+          <div className="space-y-1">
+            {feeds.map((f: FeedSource, idx: number) => (
+              <div key={idx} className="text-sm">{f.name} - {f.url}</div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -475,6 +527,7 @@ export default function AdvancedAdminPanel() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <FeedSettingsPanel section={section.id} />
               <ConfigPanel section={section.id} />
+              <CustomFeedManager section={section.id} />
             </div>
 
             {section.id === 'community' && (

@@ -22,6 +22,7 @@ import {
   checkAIHealth,
   checkStorageHealth,
 } from './utils/healthChecks'
+import { getCustomFeeds, addCustomFeed } from './config/customFeeds'
 import Parser from 'rss-parser'
 
 const rssParser = new Parser({
@@ -2509,6 +2510,32 @@ Make it engaging and authentic to underground music culture. Respond with only a
         error: error.message 
       });
     }
+  });
+
+  // Custom RSS feeds accessible to all users
+  app.get('/api/feeds/custom', (_req, res) => {
+    try {
+      res.json(getCustomFeeds());
+    } catch (error: any) {
+      res.status(500).json({ message: 'Failed to load custom feeds', error: error.message });
+    }
+  });
+
+  // Admin endpoints to manage custom feeds
+  app.get('/api/admin/custom-feeds', requireAdmin, (_req, res) => {
+    res.json(getCustomFeeds());
+  });
+
+  app.post('/api/admin/custom-feeds', requireAdmin, (req, res) => {
+    const feed = req.body;
+    if (!feed || !feed.url) {
+      return res.status(400).json({ message: 'Invalid feed data' });
+    }
+    const added = addCustomFeed(feed);
+    if (!added) {
+      return res.status(400).json({ message: 'Feed already exists' });
+    }
+    res.json({ message: 'Feed added successfully', feed });
   });
 
   // Advanced Admin Panel APIs
