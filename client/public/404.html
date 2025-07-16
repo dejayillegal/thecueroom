@@ -11,8 +11,14 @@
     const segments = window.location.pathname.split('/').filter(Boolean);
     const base = segments.length ? `/${segments[0]}/` : '/';
     const rest = segments.slice(1).join('/');
-    // Redirect preserving the path for SPA routing without double slashes
-    window.location.replace(base + rest);
+
+    // Store the requested path so the SPA can restore it after redirecting
+    if (rest) {
+      sessionStorage.setItem('redirect-path', '/' + rest);
+    }
+
+    // Redirect to the root index page
+    window.location.replace(base);
   </script>
 </head>
 <body>
