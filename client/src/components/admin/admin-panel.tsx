@@ -262,6 +262,26 @@ export default function AdminPanel() {
     }
   });
 
+  const deleteGigMutation = useMutation({
+    mutationFn: async (gigId: number) => {
+      const res = await apiRequest('DELETE', `/api/gigs/${gigId}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gigs'] });
+      toast({ title: 'Gig deleted' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to delete gig', variant: 'destructive' });
+    }
+  });
+
+  const handleRejectGig = (gigId: number) => {
+    if (window.confirm('Reject and delete this gig?')) {
+      deleteGigMutation.mutate(gigId);
+    }
+  };
+
   const handleDeleteUser = (userId: string) => {
     if (window.confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) {
       deleteUserMutation.mutate(userId);
@@ -609,12 +629,17 @@ export default function AdminPanel() {
                   </div>
                   <div className="flex items-center space-x-2">
                     {!gig.isActive && (
-                      <Button size="sm" onClick={() => approveGigMutation.mutate(gig.id)}>
-                        Approve
-                      </Button>
+                      <>
+                        <Button size="sm" onClick={() => approveGigMutation.mutate(gig.id)}>
+                          Approve
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleRejectGig(gig.id)}>
+                          Reject
+                        </Button>
+                      </>
                     )}
                     <Button size="sm" variant="outline">Edit</Button>
-                    <Button size="sm" variant="destructive">
+                    <Button size="sm" variant="destructive" onClick={() => handleRejectGig(gig.id)}>
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>

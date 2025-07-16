@@ -1378,6 +1378,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { genre, subGenre, ...gigData } = parsed;
       const gig = await storage.createGig({ ...gigData, isActive: false });
+      if (process.env.ADMIN_EMAIL) {
+        await emailService.sendGigSubmissionNotification(gig);
+      }
       res.json(gig);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -1411,11 +1414,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/gigs', async (req, res) => {
     try {
-      const active = req.query.active === 'true';
-      
+      const activeParam = req.query.active as string | undefined;
+
       let gigs;
-      if (active) {
+      if (activeParam === 'true') {
         gigs = await storage.getActiveGigs();
+      } else if (activeParam === 'false') {
+        gigs = await storage.getInactiveGigs();
       } else {
         const limit = parseInt(req.query.limit as string) || 20;
         const offset = parseInt(req.query.offset as string) || 0;

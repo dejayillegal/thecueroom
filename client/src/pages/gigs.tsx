@@ -3,6 +3,7 @@ import UniversalHeader from "@/components/layout/universal-header";
 import { Footer } from "@/components/layout/footer";
 import NewsFeed from "@/components/news/news-feed";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 
 export default function Gigs() {
@@ -44,10 +45,15 @@ export default function Gigs() {
               <Calendar className="inline-block h-8 w-8 mr-3 text-indigo-500" />
               Gigs
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Live events and gigs across India
-            </p>
-          </div>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Live events and gigs across India
+          </p>
+          {isAuthenticated && (
+            <Button asChild className="mt-4">
+              <a href="/submit-gig">Submit Event</a>
+            </Button>
+          )}
+        </div>
 
           <NewsFeed className="mt-8" />
         </div>

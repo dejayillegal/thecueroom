@@ -119,8 +119,10 @@ export interface IStorage {
   createGig(gig: InsertGig): Promise<Gig>;
   getGigs(limit?: number, offset?: number): Promise<Gig[]>;
   getActiveGigs(): Promise<Gig[]>;
+  getInactiveGigs(): Promise<Gig[]>;
   updateGig(id: number, gig: Partial<InsertGig>): Promise<Gig>;
   deleteGig(id: number): Promise<void>;
+  deletePastGigs(): Promise<number>;
 
   // Playlist operations
   createPlaylist(playlist: InsertPlaylist): Promise<Playlist>;
@@ -763,6 +765,21 @@ export class DatabaseStorage implements IStorage {
       .from(gigs)
       .where(and(eq(gigs.isActive, true), sql`${gigs.date} >= NOW()`, sql`(LOWER(${gigs.location}) LIKE '%india%' OR LOWER(${gigs.location}) LIKE '%bangalore%')`))
       .orderBy(gigs.date);
+  }
+
+  async getInactiveGigs(): Promise<Gig[]> {
+    return await db
+      .select()
+      .from(gigs)
+      .where(eq(gigs.isActive, false))
+      .orderBy(desc(gigs.date));
+  }
+
+  async deletePastGigs(): Promise<number> {
+    const result = await db
+      .delete(gigs)
+      .where(lt(gigs.date, new Date()));
+    return result.rowCount || 0;
   }
 
   async updateGig(id: number, gigData: Partial<InsertGig>): Promise<Gig> {
