@@ -22,6 +22,14 @@ import {
   checkAIHealth,
   checkStorageHealth,
 } from './utils/healthChecks'
+import Parser from 'rss-parser'
+
+const rssParser = new Parser({
+  timeout: 10000,
+  headers: {
+    'User-Agent': 'TheCueRoom/1.0 (+https://thecueroom.com)'
+  }
+})
 
 const isAdmin = async (req: any, res: any, next: any) => {
   const user = req.user;
@@ -2418,11 +2426,11 @@ Make it engaging and authentic to underground music culture. Respond with only a
         return res.status(400).json({ message: 'URL parameter is required' });
       }
 
-      // Create abort signal for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-
+      let timeoutId: NodeJS.Timeout;
       try {
+        const controller = new AbortController();
+        timeoutId = setTimeout(() => controller.abort(), 8000);
+
         const response = await fetch(url, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -2441,109 +2449,20 @@ Make it engaging and authentic to underground music culture. Respond with only a
         }
 
         const xmlText = await response.text();
-        
-        // Simple RSS parser
-        const parseRSS = (xml: string, feedUrl: string) => {
-          const items: any[] = [];
-          
-          // Extract items using regex (simple parser)
-          const itemPattern = /<item[^>]*>([\s\S]*?)<\/item>/gi;
-          let match;
-          
-          while ((match = itemPattern.exec(xml)) !== null) {
-            const itemXml = match[1];
-            
-            const extractField = (field: string) => {
-              const pattern = new RegExp(`<${field}[^>]*>([\\s\\S]*?)<\\/${field}>`, 'i');
-              const match = itemXml.match(pattern);
-              return match ? match[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : '';
-            };
+        const feed = await rssParser.parseString(xmlText);
+        const items = (feed.items || []).map((i: any) => ({
+          title: i.title?.trim() || '',
+          link: i.link || i.guid || '',
+          description: i.contentSnippet || i.content || '',
+          pubDate: i.pubDate || '',
+          author: i.creator || i.author || '',
+          image: i.enclosure?.url || ''
+        })).filter(item => item.title && item.link);
 
-            const extractLink = () => {
-              // Try different link extraction methods
-              // Method 1: Standard <link> tag
-              let link = extractField('link');
-              if (link && link.startsWith('http')) {
-                try {
-                  const base = new URL(feedUrl);
-                  const linkUrl = new URL(link);
-                  const baseHost = base.hostname.replace(/^www\./, '');
-                  const linkHost = linkUrl.hostname.replace(/^www\./, '');
-                  if (!(linkHost === baseHost && linkUrl.pathname === '/')) {
-                    return link;
-                  }
-                } catch {
-                  return link;
-                }
-              }
-
-              // Method 2: <link> with href attribute
-              const hrefPattern = /<link[^>]*href=['"]([^'"]+)['"][^>]*\/?>/i;
-              const hrefMatch = itemXml.match(hrefPattern);
-              if (hrefMatch) {
-                return hrefMatch[1];
-              }
-
-              // Method 2b: feedburner or origLink
-              const orig = extractField('feedburner:origLink') || extractField('origLink');
-              if (orig && orig.startsWith('http')) {
-                return orig;
-              }
-
-              // Method 3: <guid> tag (sometimes contains the actual URL)
-              const guid = extractField('guid');
-              if (guid && guid.startsWith('http')) {
-                return guid;
-              }
-
-              // Method 4: For RA feeds, check for specific patterns
-              const raMatch = itemXml.match(/https?:\/\/ra\.co\/(?:events|news)\/\d+/i);
-              if (raMatch) {
-                return raMatch[0];
-              }
-
-              return '';
-            };
-
-            const extractImage = () => {
-              // Try different image sources
-              const imagePattern = /<enclosure[^>]*url=['"]([^'"]+)['"][^>]*type=['"]image\/[^'"]+['"][^>]*\/?>|<media:content[^>]*url=['"]([^'"]+)['"][^>]*\/?>|<image[^>]*>[\s\S]*?<url[^>]*>([^<]+)<\/url>[\s\S]*?<\/image>/gi;
-              const match = itemXml.match(imagePattern);
-              if (match) {
-                const url = match[1] || match[2] || match[3];
-                return url?.trim() || '';
-              }
-              return '';
-            };
-
-            const title = extractField('title');
-            const link = extractLink();
-            const description = extractField('description');
-            
-            // Debug logging for link extraction
-            if (!link || link === '#') {
-              console.log(`Warning: No valid link found for article "${title}" from ${new URL(url).hostname}`);
-            }
-            
-            items.push({
-              title,
-              link,
-              description,
-              pubDate: extractField('pubDate'),
-              author: extractField('author') || extractField('creator'),
-              image: extractImage()
-            });
-          }
-          
-          return items;
-        };
-
-        const items = parseRSS(xmlText, url);
-        
-        res.json({ 
-          items: items.slice(0, 50), // Limit to 50 items
+        res.json({
+          items: items.slice(0, 50),
           source: new URL(url).hostname,
-          cached: false 
+          cached: false
         });
 
       } catch (error: any) {
