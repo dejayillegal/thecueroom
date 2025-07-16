@@ -192,6 +192,16 @@ export function setupAuth(app: Express): void {
     })(req, res, next)
   );
 
+  // Current user
+  app.get("/api/auth/user", (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { password, securityQuestion, securityAnswer, verificationToken, resetToken, resetTokenExpiry, ...safeUser } = req.user as any;
+    res.json(safeUser);
+  });
+
   // Logout
   app.post("/api/auth/logout", (req, res, next) => {
     req.logout(err => {
