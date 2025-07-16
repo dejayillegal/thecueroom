@@ -2443,7 +2443,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
         const xmlText = await response.text();
         
         // Simple RSS parser
-        const parseRSS = (xml: string) => {
+        const parseRSS = (xml: string, feedUrl: string) => {
           const items: any[] = [];
           
           // Extract items using regex (simple parser)
@@ -2464,30 +2464,45 @@ Make it engaging and authentic to underground music culture. Respond with only a
               // Method 1: Standard <link> tag
               let link = extractField('link');
               if (link && link.startsWith('http')) {
-                return link;
+                try {
+                  const base = new URL(feedUrl);
+                  const linkUrl = new URL(link);
+                  const baseHost = base.hostname.replace(/^www\./, '');
+                  const linkHost = linkUrl.hostname.replace(/^www\./, '');
+                  if (!(linkHost === baseHost && linkUrl.pathname === '/')) {
+                    return link;
+                  }
+                } catch {
+                  return link;
+                }
               }
-              
+
               // Method 2: <link> with href attribute
               const hrefPattern = /<link[^>]*href=['"]([^'"]+)['"][^>]*\/?>/i;
               const hrefMatch = itemXml.match(hrefPattern);
               if (hrefMatch) {
                 return hrefMatch[1];
               }
-              
+
+              // Method 2b: feedburner or origLink
+              const orig = extractField('feedburner:origLink') || extractField('origLink');
+              if (orig && orig.startsWith('http')) {
+                return orig;
+              }
+
               // Method 3: <guid> tag (sometimes contains the actual URL)
               const guid = extractField('guid');
               if (guid && guid.startsWith('http')) {
                 return guid;
               }
-              
+
               // Method 4: For RA feeds, check for specific patterns
-              const raPattern = /ra\.co\/events\/(\d+)/i;
-              const raMatch = itemXml.match(raPattern);
+              const raMatch = itemXml.match(/https?:\/\/ra\.co\/(?:events|news)\/\d+/i);
               if (raMatch) {
-                return `https://ra.co/events/${raMatch[1]}`;
+                return raMatch[0];
               }
-              
-              return link || '#';
+
+              return '';
             };
 
             const extractImage = () => {
@@ -2523,7 +2538,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
           return items;
         };
 
-        const items = parseRSS(xmlText);
+        const items = parseRSS(xmlText, url);
         
         res.json({ 
           items: items.slice(0, 50), // Limit to 50 items
