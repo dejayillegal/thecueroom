@@ -526,17 +526,10 @@ export const insertCuratedPlaylistSchema = createInsertSchema(curatedPlaylists);
 export const insertPlatformIntegrationSchema = createInsertSchema(platformIntegrations);
 
 // Extended Types with Relations
- export type PostWithUser = {
-   id: number;
-   title: string;
-   content: string;
-   userId: string;
-   createdAt: Date;
-   updatedAt: Date;
-   /* … other props … */
-   /** reaction count on this post */
-   likes?: number;
- };
+// Post with the associated author information
+export type PostWithUser = Post & {
+  user: User;
+};
 export type CommentWithUser = Comment & { user: User };
 export type MemeWithUser = Meme & { user: User };
 export type ModerationLog = typeof moderationLogs.$inferSelect;
