@@ -31,6 +31,7 @@ import { apiRequest } from "@/lib/queryClient";
 class FeedService {
   private cache = new Map<string, { data: FeedItem[]; timestamp: number }>();
   private cacheDuration = 60 * 60 * 1000; // 1 hour
+  private customSourcesLoaded = false;
 
   // Major electronic music RSS sources categorized
   private sources: FeedSource[] = [
@@ -155,6 +156,76 @@ class FeedService {
       description: 'Trance releases'
     },
     {
+      url: 'https://daily-beat.com/feed/',
+      name: 'Daily Beat',
+      website: 'https://daily-beat.com',
+      category: 'music',
+      description: 'Latest electronic music news'
+    },
+    {
+      url: 'https://raverrafting.com/feed/',
+      name: 'RaverRafting',
+      website: 'https://raverrafting.com',
+      category: 'music',
+      description: 'Dance music culture and news'
+    },
+    {
+      url: 'https://hardstylemag.com/feed/',
+      name: 'Hardstyle Mag',
+      website: 'https://hardstylemag.com',
+      category: 'music',
+      description: 'Hardstyle releases and features'
+    },
+    {
+      url: 'https://dancingastronaut.com/feed/',
+      name: 'Dancing Astronaut',
+      website: 'https://dancingastronaut.com',
+      category: 'music',
+      description: 'Electronic music news and features'
+    },
+    {
+      url: 'https://edm.com/.rss/full/',
+      name: 'EDM.com',
+      website: 'https://edm.com',
+      category: 'music',
+      description: 'Comprehensive EDM news'
+    },
+    {
+      url: 'https://www.mindmusic.online/feed/',
+      name: 'Mind Music',
+      website: 'https://www.mindmusic.online',
+      category: 'music',
+      description: 'Underground music updates'
+    },
+    {
+      url: 'https://smashtheclub.com/category/blog/feed/',
+      name: 'Smash The Club',
+      website: 'https://smashtheclub.com',
+      category: 'music',
+      description: 'DJ edits and remixes'
+    },
+    {
+      url: 'https://daily.bandcamp.com/feed/',
+      name: 'Bandcamp Daily',
+      website: 'https://bandcamp.com',
+      category: 'music',
+      description: 'Bandcamp Daily features'
+    },
+    {
+      url: 'https://weraveyou.com/feed/',
+      name: 'We Rave You',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'All We Rave You articles'
+    },
+    {
+      url: 'https://eatsleepedm.com/blog/feed/',
+      name: 'Eat Sleep EDM',
+      website: 'https://eatsleepedm.com',
+      category: 'music',
+      description: 'EDM releases and reviews'
+    },
+    {
       url: 'https://weraveyou.com/category/exclusive/feed/',
       name: 'We Rave You - Exclusive',
       website: 'https://weraveyou.com',
@@ -240,6 +311,34 @@ class FeedService {
       category: 'industry',
       description: 'Industry news and analysis'
     },
+    {
+      url: 'https://yourghostproduction.com/feed/',
+      name: 'Your Ghost Production',
+      website: 'https://yourghostproduction.com',
+      category: 'industry',
+      description: 'Ghost production industry insights'
+    },
+    {
+      url: 'https://theghostproduction.com/feed/',
+      name: 'The Ghost Production',
+      website: 'https://theghostproduction.com',
+      category: 'industry',
+      description: 'Professional ghost production news'
+    },
+    {
+      url: 'https://www.decodedmagazine.com/feed/',
+      name: 'Decoded Magazine',
+      website: 'https://decodedmagazine.com',
+      category: 'industry',
+      description: 'Music industry features and interviews'
+    },
+    {
+      url: 'https://idmmag.com/category/regular-content/feed/',
+      name: 'IDM Mag',
+      website: 'https://idmmag.com',
+      category: 'industry',
+      description: 'Dance music industry news'
+    },
 
     // Guides Category  
     {
@@ -255,6 +354,20 @@ class FeedService {
       website: 'https://edmprod.com',
       category: 'guides',
       description: 'Electronic music production guides'
+    },
+    {
+      url: 'https://djtechtools.com/feed/',
+      name: 'DJ TechTools',
+      website: 'https://djtechtools.com',
+      category: 'guides',
+      description: 'DJ gear reviews and tutorials'
+    },
+    {
+      url: 'https://www.synthtopia.com/feed/',
+      name: 'Synthtopia',
+      website: 'https://www.synthtopia.com',
+      category: 'guides',
+      description: 'Synth news and production tips'
     },
 
     // Gigs Category - India Events
@@ -294,6 +407,24 @@ class FeedService {
       description: 'Electronic music events and festivals'
     }
   ];
+
+  private async loadCustomSources() {
+    if (this.customSourcesLoaded) return;
+    try {
+      const res = await apiRequest('GET', '/api/feeds/custom');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        data.forEach((src: FeedSource) => {
+          if (!this.sources.some(s => s.url === src.url)) {
+            this.sources.push(src);
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load custom feeds', err);
+    }
+    this.customSourcesLoaded = true;
+  }
 
   private isCacheValid(cacheKey: string): boolean {
     const cached = this.cache.get(cacheKey);
@@ -396,6 +527,8 @@ class FeedService {
 
   async getFeedsByCategory(category: 'music' | 'guides' | 'industry' | 'gigs'): Promise<FeedItem[]> {
     const cacheKey = `category-${category}`;
+
+    await this.loadCustomSources();
     
     if (this.isCacheValid(cacheKey)) {
       return this.cache.get(cacheKey)!.data;
@@ -479,6 +612,11 @@ class FeedService {
   // Clear cache manually
   clearCache(): void {
     this.cache.clear();
+  }
+
+  async refreshCustomSources(): Promise<void> {
+    this.customSourcesLoaded = false;
+    await this.loadCustomSources();
   }
 
   // Get cache status
