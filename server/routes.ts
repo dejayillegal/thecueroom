@@ -2417,9 +2417,9 @@ Make it engaging and authentic to underground music culture. Respond with only a
     }
   });
 
-  // RSS Feed Proxy for CORS handling
+  // RSS Feed Proxy
+  // CORS headers are applied by the global middleware in `server/index.ts`
   app.get('/api/feeds/rss', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
     try {
       const { url } = req.query;
       
