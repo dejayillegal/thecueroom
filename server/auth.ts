@@ -106,7 +106,9 @@ export function setupAuth(app: Express): void {
   // Session store
   const PgStore = connectPg(session);
   const sessionSettings = {
-    store: new PgStore({ pool: (storage as any).pool, tableName: 'session' }),
+    // Use the same table name as defined in schema.ts ("sessions")
+    // so connect-pg-simple can persist sessions without errors
+    store: new PgStore({ pool: (storage as any).pool, tableName: 'sessions' }),
     secret: process.env.SESSION_SECRET || 'change-this',
     resave: false,
     saveUninitialized: false,
