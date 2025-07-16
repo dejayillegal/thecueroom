@@ -804,7 +804,13 @@ export default function Profile() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => window.location.href = '/api/auth/logout'}
+                onClick={async () => {
+                  try {
+                    await apiRequest('POST', '/api/auth/logout');
+                  } finally {
+                    window.location.href = '/';
+                  }
+                }}
               >
                 Log Out
               </Button>
