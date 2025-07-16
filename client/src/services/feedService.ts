@@ -568,8 +568,8 @@ class FeedService {
     }
   }
 
-  async getSpotlightFeed(): Promise<FeedItem[]> {
-    const cacheKey = 'spotlight';
+  async getSpotlightFeed(maxItems = 8): Promise<FeedItem[]> {
+    const cacheKey = `spotlight-${maxItems}`;
     
     if (this.isCacheValid(cacheKey)) {
       return this.cache.get(cacheKey)!.data;
@@ -591,18 +591,28 @@ class FeedService {
       spotlightItems.push(...categoryItems.slice(0, maxPerCategory));
     });
 
-    // Sort by publication date and limit to 12 items
-    const sortedSpotlight = spotlightItems
-      .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
-      .slice(0, 12);
+    // Sort by publication date
+    const sortedSpotlight = spotlightItems.sort(
+      (a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+    );
+
+    const uniqueSpotlight: FeedItem[] = [];
+    const seenSources = new Set<string>();
+    for (const item of sortedSpotlight) {
+      if (!seenSources.has(item.source)) {
+        uniqueSpotlight.push(item);
+        seenSources.add(item.source);
+      }
+      if (uniqueSpotlight.length >= maxItems) break;
+    }
 
     // Cache the results
     this.cache.set(cacheKey, {
-      data: sortedSpotlight,
+      data: uniqueSpotlight,
       timestamp: Date.now()
     });
 
-    return sortedSpotlight;
+    return uniqueSpotlight;
   }
 
   async getAllSources(): Promise<FeedSource[]> {

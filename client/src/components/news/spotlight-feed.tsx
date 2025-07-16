@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { feedService } from "@/services/feedService";
+import { useFeedSettings } from "@/hooks/useFeedSettings";
 import NewsFeedCard from "./news-feed-card";
 
 interface SpotlightFeedProps {
@@ -18,6 +19,8 @@ interface SpotlightFeedProps {
 
 export default function SpotlightFeed({ className }: SpotlightFeedProps) {
   const [refreshKey, setRefreshKey] = useState(0);
+  const feedSettings = useFeedSettings();
+  const maxItems = feedSettings?.spotlight?.maxItems ?? 8;
 
   // Fetch spotlight feeds
   const { 
@@ -26,9 +29,9 @@ export default function SpotlightFeed({ className }: SpotlightFeedProps) {
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['spotlight-feed', refreshKey],
+    queryKey: ['spotlight-feed', refreshKey, maxItems],
     queryFn: async () => {
-      return await feedService.getSpotlightFeed();
+      return await feedService.getSpotlightFeed(maxItems);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 10 * 60 * 1000, // Auto-refresh every 10 minutes
@@ -111,7 +114,7 @@ export default function SpotlightFeed({ className }: SpotlightFeedProps) {
 
           {/* Feed Grid */}
           <div className={gridClasses}>
-            {newsOnlyFeeds.slice(0, 4).map((item, index) => (
+            {newsOnlyFeeds.slice(0, maxItems).map((item, index) => (
               <NewsFeedCard
                 key={`${item.id}-${index}`}
                 item={item}
