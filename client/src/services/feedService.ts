@@ -30,7 +30,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 class FeedService {
   private cache = new Map<string, { data: FeedItem[]; timestamp: number }>();
-  private cacheDuration = 15 * 60 * 1000; // 15 minutes
+  private cacheDuration = 60 * 60 * 1000; // 1 hour
 
   // Major electronic music RSS sources categorized
   private sources: FeedSource[] = [
@@ -353,20 +353,30 @@ class FeedService {
         return [];
       }
 
-      return data.items.map((item: any) => ({
-        id: this.generateId(item, source.name),
-        title: item.title || 'Untitled',
-        excerpt: this.extractExcerpt(item.description || item.content || ''),
-        content: item.content || item.description || '',
-        link: item.link && item.link !== '#' ? item.link : '#',
-        author: item.author || source.name,
-        pubDate: item.pubDate || new Date().toISOString(),
-        image: item.image,
-        source: source.name,
-        sourceUrl: source.website,
-        category: source.category,
-        tags: this.extractTags(item.content || item.description || '', item.title || '')
-      })).filter(item => item.title && item.title !== 'Untitled');
+      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+      return data.items
+        .map((item: any) => {
+          const parsed = new Date(item.pubDate || "");
+          const validDate = !isNaN(parsed.getTime()) ? parsed : new Date();
+
+          return {
+            id: this.generateId(item, source.name),
+            title: item.title || 'Untitled',
+            excerpt: this.extractExcerpt(item.description || item.content || ''),
+            content: item.content || item.description || '',
+            link: item.link && item.link !== '#' ? item.link : '#',
+            author: item.author || source.name,
+            pubDate: validDate.toISOString(),
+            image: item.image,
+            source: source.name,
+            sourceUrl: source.website,
+            category: source.category,
+            tags: this.extractTags(item.content || item.description || '', item.title || '')
+          } as FeedItem;
+        })
+        .filter(item => item.title && item.title !== 'Untitled')
+        .filter(item => new Date(item.pubDate).getTime() >= oneWeekAgo);
 
     } catch (error) {
       console.error(`Error fetching ${source.name}:`, error);
