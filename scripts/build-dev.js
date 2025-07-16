@@ -47,7 +47,7 @@ console.log('   ✓ Created .nojekyll file');
 
 // Step 6: Update base href in HTML files
 console.log('5. Updating base paths...');
-const htmlFiles = ['dist/ndex.html', 'dist/404.html'];
+const htmlFiles = ['dist/index.html', 'dist/404.html'];
 htmlFiles.forEach(file => {
   if (fs.existsSync(file)) {
     let content = fs.readFileSync(file, 'utf8');
