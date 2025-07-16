@@ -134,6 +134,24 @@ export class EmailService {
     return result.success;
   }
 
+  async sendGigSubmissionNotification(gig: { title: string; venue: string; location: string; date: Date }): Promise<boolean> {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) return false;
+    const html = `
+      <div style="font-family: sans-serif; line-height:1.4;">
+        <h2>New Gig Submitted</h2>
+        <p><strong>${gig.title}</strong> at ${gig.venue}, ${gig.location}</p>
+        <p>Date: ${gig.date.toISOString()}</p>
+      </div>
+    `;
+    const result = await this.sendEmail({
+      to: adminEmail,
+      subject: 'New gig submission awaiting approval',
+      html,
+    });
+    return result.success;
+  }
+
   /** Simple config check */
   async testConnection(): Promise<{ success: boolean; provider: 'smtp'; error?: string }> {
     try {
