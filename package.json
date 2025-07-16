@@ -10,7 +10,7 @@
   },
   "scripts": {
     "preinstall": "npm install -g npm@11.3.0",
-    "postinstall": "if [ \"$(uname -s)\" = \"Linux\" ]; then npm install @rollup/rollup-linux-x64-gnu@4.44.2 @esbuild/linux-x64@0.18.20 --no-save; fi",
+    "postinstall": "if [ \"$(uname -s)\" = \"Linux\" ]; then npm install @rollup/rollup-linux-x64-gnu@4.44.2 @esbuild/linux-x64@0.19.12 --no-save; fi",
     "clean": "rm -rf node_modules package-lock.json",
     "build:shared": "tsc -p tsconfig.shared.json && echo '{\"type\":\"commonjs\"}' > dist/shared/package.json",
     "build:server": "tsc -p tsconfig.server.json && echo '{\"type\":\"commonjs\",\"_moduleAliases\":{\"@shared\":\"../shared\"}}' > dist/server/package.json",
@@ -101,7 +101,7 @@
     "drizzle-orm": "^0.39.1",
     "drizzle-zod": "^0.7.0",
     "embla-carousel-react": "^8.6.0",
-    "esbuild": "0.18.20",
+    "esbuild": "0.19.12",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "feed-reader": "^6.1.4-rc1",
