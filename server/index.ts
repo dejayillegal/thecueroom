@@ -9,6 +9,7 @@ import cors from 'cors';
 import 'module-alias/register'; // after aliases are set
 import { registerRoutes } from './routes.js';
 import { setupVite, serveStatic, log } from './vite.js';
+import { newsService } from './services/newsService.js';
 
 // ─── 0) Register @shared alias so that require('@shared/...') resolves to dist/shared/… ───
 moduleAlias.addAlias(
@@ -126,4 +127,11 @@ app.use((req, res, next) => {
   server.listen(port, host, () => {
     log(`✅ Server is running at http://${host}:${port}`);
   });
+
+  // Refresh news feeds every hour
+  setInterval(() => {
+    newsService.refreshNewsFeeds().catch(err => {
+      console.error('Auto news refresh failed:', err);
+    });
+  }, 60 * 60 * 1000);
 })();

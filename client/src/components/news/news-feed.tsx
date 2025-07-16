@@ -62,8 +62,8 @@ export default function NewsFeed({ className }: NewsFeedProps) {
       }
       return await feedService.getFeedsByCategory(activeCategory);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 10 * 60 * 1000, // Auto-refresh every 10 minutes
+    staleTime: 60 * 60 * 1000, // 1 hour
+    refetchInterval: 60 * 60 * 1000, // Auto-refresh every hour
   });
 
   // Sort and filter feeds
@@ -229,7 +229,7 @@ export default function NewsFeed({ className }: NewsFeedProps) {
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
               <span>• Data from Resident Advisor, Mixmag, Beatport, and more</span>
-              <span>• Updated every 45 minutes</span>
+              <span>• Updated hourly</span>
               <span>• Links direct to original sources</span>
             </div>
             <p className="text-xs text-muted-foreground">
