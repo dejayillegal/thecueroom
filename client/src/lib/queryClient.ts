@@ -21,41 +21,58 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  retries = 2,
 ): Promise<Response> {
   const baseUrl = getApiBaseUrl();
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-  
-  const res = await fetch(fullUrl, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
 
-  await throwIfResNotOk(res);
-  return res;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(fullUrl, {
+        method,
+        headers: data ? { "Content-Type": "application/json" } : {},
+        body: data ? JSON.stringify(data) : undefined,
+        credentials: "include",
+      });
+
+      await throwIfResNotOk(res);
+      return res;
+    } catch (err) {
+      if (attempt >= retries) throw err;
+      // simple backoff
+      await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
+  retries?: number;
 }) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
+  ({ on401: unauthorizedBehavior, retries = 2 }) =>
   async ({ queryKey }) => {
     const baseUrl = getApiBaseUrl();
     const url = queryKey[0] as string;
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    
-    const res = await fetch(fullUrl, {
-      credentials: "include",
-    });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const res = await fetch(fullUrl, {
+          credentials: "include",
+        });
+
+        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+          return null;
+        }
+
+        await throwIfResNotOk(res);
+        return await res.json();
+      } catch (err) {
+        if (attempt >= retries) throw err;
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({
