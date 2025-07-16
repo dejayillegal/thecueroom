@@ -25,12 +25,25 @@ class NewsService {
   private sources: NewsSource[] = [
     // Global Electronic Music Sources
     { name: 'Resident Advisor', url: 'https://ra.co/xml/rss.xml', category: 'Electronic' },
-    { name: 'Mixmag', url: 'https://mixmag.net/feed', category: 'Electronic' },
+    { name: 'Mixmag', url: 'https://mixmag.net/rss.xml', category: 'Electronic' },
     { name: 'DJ Mag', url: 'https://djmag.com/rss.xml', category: 'Electronic' },
     { name: 'Dancing Astronaut', url: 'https://dancingastronaut.com/feed/', category: 'Electronic' },
     { name: 'EDM.com', url: 'https://edm.com/feed', category: 'Electronic' },
     { name: 'We Rave You', url: 'https://weraveyou.com/feed/', category: 'Electronic' },
     { name: 'Your EDM', url: 'https://youredm.com/feed/', category: 'Electronic' },
+    { name: 'Disco Vinyl', url: 'https://feeds.feedburner.com/DiscoVinyl', category: 'House' },
+    { name: 'EDM Identity', url: 'https://edmidentity.com/feed/', category: 'Electronic' },
+    { name: 'EDM Sauce', url: 'https://www.edmsauce.com/feed/', category: 'Electronic' },
+    { name: 'Techno Airlines', url: 'https://www.technoairlines.com/feed', category: 'Techno' },
+    { name: 'No Dough Music', url: 'https://www.nodoughmusic.com/feed/', category: 'House' },
+    { name: 'Web Radio House Music', url: 'https://webradiohousemusic.blogspot.com/feeds/posts/default?alt=rss', category: 'House' },
+    { name: 'The Techno Kittens', url: 'https://thetechnokittens.com/feed/?x=1', category: 'Techno' },
+    { name: '5 Magazine', url: 'https://5mag.net/category/news/feed/', category: 'Electronic' },
+    { name: 'Acid Ted', url: 'https://acidted.wordpress.com/feed/', category: 'Electronic' },
+    { name: 'Deep House Amsterdam', url: 'https://www.deephouseamsterdam.com/feed/', category: 'Deep House' },
+    { name: 'Soundplate', url: 'https://soundplate.com/feed/', category: 'Electronic' },
+    { name: 'Deeper Shades of House', url: 'https://feeds.feedburner.com/DeeperShadesOfHouse', category: 'House' },
+    { name: 'Fresh New Tracks', url: 'https://freshnewtracks.com/category/house/feed/', category: 'House' },
 
     // Techno & House Focused
     { name: 'Beatport News', url: 'https://news.beatport.com/feed/', category: 'Techno/House' },

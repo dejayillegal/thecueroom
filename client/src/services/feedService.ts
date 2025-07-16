@@ -43,7 +43,7 @@ class FeedService {
       description: 'Electronic music news and reviews'
     },
     {
-      url: 'https://mixmag.net/feed',
+      url: 'https://mixmag.net/rss.xml',
       name: 'Mixmag',
       website: 'https://mixmag.net',
       category: 'music',
@@ -62,6 +62,97 @@ class FeedService {
       website: 'https://djmag.com',
       category: 'music',
       description: 'DJ and electronic music magazine'
+    },
+    {
+      url: 'https://feeds.feedburner.com/DiscoVinyl',
+      name: 'Disco Vinyl',
+      website: 'https://discovinyl.com',
+      category: 'music',
+      description: 'House and disco news'
+    },
+    {
+      url: 'https://edmidentity.com/feed/',
+      name: 'EDM Identity',
+      website: 'https://edmidentity.com',
+      category: 'music',
+      description: 'Electronic dance music community news'
+    },
+    {
+      url: 'https://www.edmsauce.com/feed/',
+      name: 'EDM Sauce',
+      website: 'https://www.edmsauce.com',
+      category: 'music',
+      description: 'EDM news and releases'
+    },
+    {
+      url: 'https://www.technoairlines.com/feed',
+      name: 'Techno Airlines',
+      website: 'https://www.technoairlines.com',
+      category: 'music',
+      description: 'Techno news and features'
+    },
+    {
+      url: 'https://www.nodoughmusic.com/feed/',
+      name: 'No Dough Music',
+      website: 'https://www.nodoughmusic.com',
+      category: 'music',
+      description: 'House music blog'
+    },
+    {
+      url: 'https://webradiohousemusic.blogspot.com/feeds/posts/default?alt=rss',
+      name: 'Web Radio House Music',
+      website: 'https://webradiohousemusic.blogspot.com',
+      category: 'music',
+      description: 'House music radio and news'
+    },
+    {
+      url: 'https://thetechnokittens.com/feed/?x=1',
+      name: 'The Techno Kittens',
+      website: 'https://thetechnokittens.com',
+      category: 'music',
+      description: 'Techno and house culture blog'
+    },
+    {
+      url: 'https://5mag.net/category/news/feed/',
+      name: '5 Magazine',
+      website: 'https://5mag.net',
+      category: 'music',
+      description: 'Chicago house music news'
+    },
+    {
+      url: 'https://acidted.wordpress.com/feed/',
+      name: 'Acid Ted',
+      website: 'https://acidted.wordpress.com',
+      category: 'music',
+      description: 'Electronic music reviews'
+    },
+    {
+      url: 'https://www.deephouseamsterdam.com/feed/',
+      name: 'Deep House Amsterdam',
+      website: 'https://www.deephouseamsterdam.com',
+      category: 'music',
+      description: 'Deep house music news'
+    },
+    {
+      url: 'https://soundplate.com/feed/',
+      name: 'Soundplate',
+      website: 'https://soundplate.com',
+      category: 'music',
+      description: 'Electronic music playlists'
+    },
+    {
+      url: 'https://feeds.feedburner.com/DeeperShadesOfHouse',
+      name: 'Deeper Shades of House',
+      website: 'https://www.deepershades.net',
+      category: 'music',
+      description: 'Deep house podcasts and news'
+    },
+    {
+      url: 'https://freshnewtracks.com/category/house/feed/',
+      name: 'Fresh New Tracks',
+      website: 'https://freshnewtracks.com',
+      category: 'music',
+      description: 'House music releases'
     },
 
     // Industry Category
