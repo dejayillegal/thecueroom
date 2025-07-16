@@ -11,6 +11,7 @@ import { Eye, Filter, Search, User, Calendar, Activity, ArrowLeft, Shield } from
 import { format } from "date-fns";
 import Navbar from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { getBasePath } from "@/lib/router-config";
 
 interface UserLog {
   id: number;
@@ -87,7 +88,7 @@ export default function AdminLogsPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.location.href = '/admin'}
+              onClick={() => window.location.href = getBasePath() + '/admin'}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

@@ -196,7 +196,7 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-64 bg-gray-900 border-gray-700">
                     {navigationItems.map(cat => (
-                      <DropdownMenuItem key={cat.id} onClick={() => window.location.href = cat.href}>
+                      <DropdownMenuItem key={cat.id} onClick={() => window.location.href = getBasePath() + cat.href}>
                         <div className="flex items-center space-x-2">
                           <cat.icon className="w-5 h-5" />
                           <div className="flex flex-col">
