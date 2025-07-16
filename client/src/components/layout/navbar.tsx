@@ -36,6 +36,7 @@ import {
 import { Logo } from "@/components/ui/logo";
 import { apiRequest } from "@/lib/queryClient";
 import { safeStorage } from "@/lib/safe-dom";
+import { getBasePath } from "@/lib/router-config";
 
 export default function Navbar() {
   const [location, navigate] = useLocation();
@@ -168,7 +169,7 @@ export default function Navbar() {
                       queryClient.setQueryData(['/api/auth/user'], null);
                       safeStorage.removeItem('tcr-user');
                     } finally {
-                      window.location.href = '/';
+                      window.location.href = getBasePath();
                     }
                   }}
                 >

@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { safeStorage } from "@/lib/safe-dom";
+import { getBasePath } from "@/lib/router-config";
 import UniversalHeader from "@/components/layout/universal-header";
 import { Footer } from "@/components/layout/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -810,8 +811,15 @@ export default function Profile() {
                 onClick={async () => {
                   try {
                     await apiRequest('POST', '/api/auth/logout');
+                    queryClient.setQueryData(['/api/auth/user'], null);
+                    queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                    safeStorage.removeItem('tcr-user');
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                    queryClient.setQueryData(['/api/auth/user'], null);
+                    safeStorage.removeItem('tcr-user');
                   } finally {
-                    window.location.href = '/';
+                    window.location.href = getBasePath();
                   }
                 }}
               >

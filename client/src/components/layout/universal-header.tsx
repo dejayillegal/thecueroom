@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { apiRequest } from "@/lib/queryClient";
+import { safeStorage } from "@/lib/safe-dom";
 import {
   Home,
   Search,
@@ -38,6 +39,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
+import { getBasePath } from "@/lib/router-config";
 
 // Navigation categories
 const categories = [
@@ -166,8 +168,15 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                       onClick={async () => {
                         try {
                           await apiRequest('POST', '/api/auth/logout');
+                          queryClient.setQueryData(['/api/auth/user'], null);
+                          queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                          safeStorage.removeItem('tcr-user');
+                        } catch (error) {
+                          console.error('Logout error:', error);
+                          queryClient.setQueryData(['/api/auth/user'], null);
+                          safeStorage.removeItem('tcr-user');
                         } finally {
-                          window.location.href = '/';
+                          window.location.href = getBasePath();
                         }
                       }}
                     >
@@ -252,8 +261,15 @@ export default function UniversalHeader({ className }: UniversalHeaderProps) {
                         onClick={async () => {
                           try {
                             await apiRequest('POST', '/api/auth/logout');
+                            queryClient.setQueryData(['/api/auth/user'], null);
+                            queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                            safeStorage.removeItem('tcr-user');
+                          } catch (error) {
+                            console.error('Logout error:', error);
+                            queryClient.setQueryData(['/api/auth/user'], null);
+                            safeStorage.removeItem('tcr-user');
                           } finally {
-                            window.location.href = '/';
+                          window.location.href = getBasePath();
                           }
                         }}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 text-gray-300 hover:text-white rounded-lg mx-2 cursor-pointer"
