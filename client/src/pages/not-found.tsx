@@ -96,7 +96,7 @@ export default function NotFound() {
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <Link href={homeHref}>
+          <Link href="/">
             <Button className="gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 border-0">
               <Home className="h-4 w-4" />
               Back to The Room
