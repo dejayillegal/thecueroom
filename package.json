@@ -6,7 +6,11 @@
   "homepage": "https://dejayillegal.github.io/thecueroom/",
   "license": "MIT",
   "engines": {
-    "node": ">=18 <22"
+    "node": ">=18 <25"
+  },
+   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.44.2",
+    "@esbuild/linux-x64": "0.25.6"
   },
   "scripts": {
     "preinstall": "npm install -g npm@11.3.0",
@@ -29,9 +33,6 @@
   "_moduleAliases": {
     "@shared": "dist/shared"
   },
-  "engines": {
-     "node": ">=18 <22"
-   },
   "dependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.44.2",
     "@esbuild/linux-x64": "0.19.12",
