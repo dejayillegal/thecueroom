@@ -2419,6 +2419,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
 
   // RSS Feed Proxy for CORS handling
   app.get('/api/feeds/rss', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     try {
       const { url } = req.query;
       
