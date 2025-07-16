@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { apiRequest } from "@/lib/queryClient";
+import { safeStorage } from "@/lib/safe-dom";
 
 export default function Navbar() {
   const [location, navigate] = useLocation();
@@ -161,9 +162,11 @@ export default function Navbar() {
                       await apiRequest('POST', '/api/auth/logout');
                       queryClient.setQueryData(['/api/auth/user'], null);
                       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                      safeStorage.removeItem('tcr-user');
                     } catch (error) {
                       console.error('Logout error:', error);
                       queryClient.setQueryData(['/api/auth/user'], null);
+                      safeStorage.removeItem('tcr-user');
                     } finally {
                       window.location.href = '/';
                     }

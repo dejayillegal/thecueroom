@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { safeStorage } from "@/lib/safe-dom";
 import { Eye, EyeOff, Music, Mail, HelpCircle, UserCog, ArrowLeft, Check, X, Sparkles } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import ForcePasswordChange from "./force-password-change";
@@ -275,8 +276,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setForcePasswordChange({ email: data.email });
         return;
       }
-      
+
       queryClient.setQueryData(["/api/auth/user"], data);
+      safeStorage.setItem("tcr-user", JSON.stringify(data));
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in to TheCueRoom.",
