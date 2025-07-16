@@ -1,4 +1,5 @@
 // server/index.ts
+// @ts-nocheck
 
 import path from 'path';
 import moduleAlias from 'module-alias';

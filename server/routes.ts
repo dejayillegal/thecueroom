@@ -2580,7 +2580,7 @@ Make it engaging and authentic to underground music culture. Respond with only a
         community: {
           views: posts.length * 15,
           active: users.filter(u => !u.isSuspended).length,
-          trending: posts.filter(p => p.likes && p.likes > 10).length,
+          trending: posts.filter(p => p.likesCount && p.likesCount > 10).length,
           total: posts.length
         },
         music: {
