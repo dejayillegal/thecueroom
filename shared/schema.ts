@@ -519,7 +519,7 @@ export const insertTrackSchema = z.object({
 }).passthrough();
 
 
-exports.insertModerationLogSchema = createInsertSchema(exports.moderationLogs);
+export const insertModerationLogSchema = createInsertSchema(moderationLogs);
 
 export const insertCuratedPlaylistSchema = createInsertSchema(curatedPlaylists);
 
