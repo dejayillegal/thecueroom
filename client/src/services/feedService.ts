@@ -26,6 +26,8 @@ export interface FeedSource {
   description: string;
 }
 
+import { apiRequest } from "@/lib/queryClient";
+
 class FeedService {
   private cache = new Map<string, { data: FeedItem[]; timestamp: number }>();
   private cacheDuration = 15 * 60 * 1000; // 15 minutes
@@ -177,7 +179,10 @@ class FeedService {
 
   private async fetchFeedData(source: FeedSource): Promise<FeedItem[]> {
     try {
-      const response = await fetch(`/api/feeds/rss?url=${encodeURIComponent(source.url)}`);
+      const response = await apiRequest(
+        'GET',
+        `/api/feeds/rss?url=${encodeURIComponent(source.url)}`
+      );
       
       if (!response.ok) {
         console.warn(`Failed to fetch ${source.name}: ${response.statusText}`);
@@ -314,7 +319,7 @@ class FeedService {
       title: item.title,
       excerpt: item.excerpt,
       content: item.content,
-      link: '#',
+      link: source.website,
       author: item.author,
       pubDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
       image: undefined,
