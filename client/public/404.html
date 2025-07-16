@@ -7,10 +7,12 @@
   <title>Page Not Found</title>
   <!-- Immediately redirect back to your base path -->
   <script>
-    const base = import.meta.env.VITE_BASE_PATH || "/";
-    const prefix = base.endsWith("/") ? base : base + "/";
-    // Redirect preserving the original path for SPA routing
-    window.location.replace(prefix + window.location.pathname);
+    // Compute base path from the current URL so this works on GitHub Pages
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const base = segments.length ? `/${segments[0]}/` : '/';
+    const rest = segments.slice(1).join('/');
+    // Redirect preserving the path for SPA routing without double slashes
+    window.location.replace(base + rest);
   </script>
 </head>
 <body>
