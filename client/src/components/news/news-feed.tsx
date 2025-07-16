@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { feedService, type FeedItem } from "@/services/feedService";
+import { useFeedSettings } from "@/hooks/useFeedSettings";
 import NewsFeedCard from "./news-feed-card";
 
 interface NewsFeedProps {
@@ -23,6 +24,8 @@ export default function NewsFeed({ className }: NewsFeedProps) {
   const [activeCategory, setActiveCategory] = useState<'home' | 'music' | 'guides' | 'industry' | 'gigs'>('home');
   const [sortBy, setSortBy] = useState<'date' | 'source'>('date');
   const [refreshKey, setRefreshKey] = useState(0);
+  const feedSettings = useFeedSettings();
+  const maxItems = feedSettings?.spotlight?.maxItems ?? 8;
 
   // Detect category from current URL path
   useEffect(() => {
@@ -55,10 +58,10 @@ export default function NewsFeed({ className }: NewsFeedProps) {
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['news-feed', activeCategory, refreshKey],
+    queryKey: ['news-feed', activeCategory, refreshKey, maxItems],
     queryFn: async () => {
       if (activeCategory === 'home') {
-        return await feedService.getSpotlightFeed();
+        return await feedService.getSpotlightFeed(maxItems);
       }
       return await feedService.getFeedsByCategory(activeCategory);
     },
@@ -193,7 +196,9 @@ export default function NewsFeed({ className }: NewsFeedProps) {
 
             {/* Feed Grid */}
             <div className={getGridClasses()}>
-              {sortedFeeds.map((item, index) => (
+              {sortedFeeds
+                .slice(0, activeCategory === 'home' ? maxItems : sortedFeeds.length)
+                .map((item, index) => (
                 <NewsFeedCard
                   key={`${item.id}-${index}`}
                   item={item}

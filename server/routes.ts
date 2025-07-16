@@ -32,6 +32,66 @@ const rssParser = new Parser({
   }
 })
 
+// In-memory feed settings
+let feedSettings: Record<string, any> = {
+  spotlight: {
+    enabled: true,
+    refreshInterval: 300,
+    maxItems: 8,
+    sources: ['mixmag', 'residentadvisor', 'djmag'],
+    categories: ['featured', 'trending'],
+    moderation: true
+  },
+  community: {
+    enabled: true,
+    refreshInterval: 60,
+    maxItems: 100,
+    sources: ['user_posts', 'comments'],
+    categories: ['discussion', 'announcement'],
+    moderation: true
+  },
+  music: {
+    enabled: true,
+    refreshInterval: 600,
+    maxItems: 50,
+    sources: ['beatport', 'soundcloud', 'spotify'],
+    categories: ['releases', 'news', 'reviews'],
+    moderation: true
+  },
+  guides: {
+    enabled: true,
+    refreshInterval: 1800,
+    maxItems: 30,
+    sources: ['point-blank', 'edmprod', 'native-instruments'],
+    categories: ['tutorials', 'tips', 'techniques'],
+    moderation: false
+  },
+  industry: {
+    enabled: true,
+    refreshInterval: 900,
+    maxItems: 40,
+    sources: ['musictech', 'attack-magazine'],
+    categories: ['business', 'technology', 'trends'],
+    moderation: true
+  },
+  gigs: {
+    enabled: true,
+    refreshInterval: 1800,
+    maxItems: 25,
+    sources: ['ra-mumbai', 'ra-bangalore', 'ra-goa', 'ra-delhi'],
+    categories: ['events', 'festivals', 'club-nights'],
+    moderation: false
+  },
+  system: {
+    enabled: true,
+    refreshInterval: 3600,
+    maxItems: 20,
+    sources: ['system_logs', 'user_activity'],
+    categories: ['maintenance', 'updates'],
+    moderation: false
+  }
+};
+
 const isAdmin = async (req: any, res: any, next: any) => {
   const user = req.user;
   if (!user) {
@@ -2673,65 +2733,16 @@ Make it engaging and authentic to underground music culture. Respond with only a
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const feedSettings = {
-        spotlight: {
-          enabled: true,
-          refreshInterval: 300,
-          maxItems: 10,
-          sources: ['mixmag', 'residentadvisor', 'djmag'],
-          categories: ['featured', 'trending'],
-          moderation: true
-        },
-        community: {
-          enabled: true,
-          refreshInterval: 60,
-          maxItems: 100,
-          sources: ['user_posts', 'comments'],
-          categories: ['discussion', 'announcement'],
-          moderation: true
-        },
-        music: {
-          enabled: true,
-          refreshInterval: 600,
-          maxItems: 50,
-          sources: ['beatport', 'soundcloud', 'spotify'],
-          categories: ['releases', 'news', 'reviews'],
-          moderation: true
-        },
-        guides: {
-          enabled: true,
-          refreshInterval: 1800,
-          maxItems: 30,
-          sources: ['point-blank', 'edmprod', 'native-instruments'],
-          categories: ['tutorials', 'tips', 'techniques'],
-          moderation: false
-        },
-        industry: {
-          enabled: true,
-          refreshInterval: 900,
-          maxItems: 40,
-          sources: ['musictech', 'attack-magazine'],
-          categories: ['business', 'technology', 'trends'],
-          moderation: true
-        },
-        gigs: {
-          enabled: true,
-          refreshInterval: 1800,
-          maxItems: 25,
-          sources: ['ra-mumbai', 'ra-bangalore', 'ra-goa', 'ra-delhi'],
-          categories: ['events', 'festivals', 'club-nights'],
-          moderation: false
-        },
-        system: {
-          enabled: true,
-          refreshInterval: 3600,
-          maxItems: 20,
-          sources: ['system_logs', 'user_activity'],
-          categories: ['maintenance', 'updates'],
-          moderation: false
-        }
-      };
+      res.json(feedSettings);
+    } catch (error) {
+      console.error('Feed settings error:', error);
+      res.status(500).json({ message: 'Failed to fetch feed settings' });
+    }
+  });
 
+  // Public feed settings (read-only)
+  app.get('/api/feed-settings', async (_req, res) => {
+    try {
       res.json(feedSettings);
     } catch (error) {
       console.error('Feed settings error:', error);
@@ -2749,10 +2760,9 @@ Make it engaging and authentic to underground music culture. Respond with only a
       const { section } = req.params;
       const settings = req.body;
 
-      // In a real implementation, save to database
-      console.log(`Updated feed settings for ${section}:`, settings);
+      feedSettings[section] = { ...feedSettings[section], ...settings };
 
-      res.json({ message: 'Feed settings updated successfully', section, settings });
+      res.json({ message: 'Feed settings updated successfully', section, settings: feedSettings[section] });
     } catch (error) {
       console.error('Update feed settings error:', error);
       res.status(500).json({ message: 'Failed to update feed settings' });

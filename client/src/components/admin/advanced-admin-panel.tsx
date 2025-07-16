@@ -132,7 +132,7 @@ export default function AdvancedAdminPanel() {
     return feedSettings?.[section] || {
       enabled: true,
       refreshInterval: 300,
-      maxItems: 50,
+      maxItems: section === 'spotlight' ? 8 : 50,
       sources: [],
       categories: [],
       moderation: true
@@ -301,14 +301,14 @@ export default function AdvancedAdminPanel() {
             <Input
               type="number"
               value={localSettings.maxItems}
-              onChange={(e) => 
-                setLocalSettings(prev => ({ 
-                  ...prev, 
-                  maxItems: parseInt(e.target.value) || 50 
+              onChange={(e) =>
+                setLocalSettings(prev => ({
+                  ...prev,
+                  maxItems: parseInt(e.target.value) || prev.maxItems
                 }))
               }
-              min="10"
-              max="200"
+              min={section === 'spotlight' ? 1 : 10}
+              max={section === 'spotlight' ? 8 : 200}
             />
           </div>
 
