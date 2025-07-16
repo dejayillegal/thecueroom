@@ -25,6 +25,17 @@ export async function hashPassword(password: string): Promise<string> {
   return `${buf.toString("hex")}.${salt}`;
 }
 
+
+async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  try {
+    const [hashed, salt] = stored.split(".");
+    if (!hashed || !salt) return false;
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    if (hashedBuf.length !== suppliedBuf.length) return false;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch {
+
 export async function comparePasswords(
   supplied: string,
   stored: string
@@ -37,6 +48,7 @@ export async function comparePasswords(
     return timingSafeEqual(hashedBuf, suppliedBuf);
   } catch (err) {
     console.error('Password comparison failed:', err);
+
     return false;
   }
 }
