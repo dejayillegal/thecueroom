@@ -50,25 +50,130 @@ class FeedService {
       description: 'Dance music and club culture'
     },
     {
-      url: 'https://www.beatport.com/rss/top-100',
+      url: 'http://api.beatport.com/catalog/most-popular/?locale=en_US&page=1&perPage=100&format=rss&type=track&genre=12&v=1.0',
       name: 'Beatport',
       website: 'https://beatport.com',
       category: 'music',
-      description: 'Electronic music marketplace and charts'
+      description: 'Beatport most popular tracks'
     },
     {
-      url: 'https://djmag.com/rss.xml',
+      url: 'https://feeds.feedburner.com/DJmag-LatestNews',
       name: 'DJ Mag',
       website: 'https://djmag.com',
       category: 'music',
-      description: 'DJ and electronic music magazine'
+      description: 'DJ Mag latest news'
     },
     {
-      url: 'https://feeds.feedburner.com/DiscoVinyl',
-      name: 'Disco Vinyl',
-      website: 'https://discovinyl.com',
+      url: 'https://weraveyou.com/category/news/feed/',
+      name: 'We Rave You - News',
+      website: 'https://weraveyou.com',
       category: 'music',
-      description: 'House and disco news'
+      description: 'Latest electronic music news'
+    },
+    {
+      url: 'https://weraveyou.com/category/featured/feed/',
+      name: 'We Rave You - Featured',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Featured articles'
+    },
+    {
+      url: 'https://weraveyou.com/category/editorials/feed/',
+      name: 'We Rave You - Editorials',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Editorial content'
+    },
+    {
+      url: 'https://weraveyou.com/category/interviews/feed/',
+      name: 'We Rave You - Interviews',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Artist interviews'
+    },
+    {
+      url: 'https://weraveyou.com/category/music/feed/',
+      name: 'We Rave You - All Music',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'All music news'
+    },
+    {
+      url: 'https://weraveyou.com/category/house/feed/',
+      name: 'We Rave You - House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'House music news'
+    },
+    {
+      url: 'https://weraveyou.com/category/progressive-house/feed/',
+      name: 'We Rave You - Progressive House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Progressive house releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/deep-house/feed/',
+      name: 'We Rave You - Deep House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Deep house releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/future-house/feed/',
+      name: 'We Rave You - Future House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Future house releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/tropical-house/feed/',
+      name: 'We Rave You - Tropical House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Tropical house releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/tech-house/feed/',
+      name: 'We Rave You - Tech House',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Tech house releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/techno/feed/',
+      name: 'We Rave You - Techno',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Techno releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/trance/feed/',
+      name: 'We Rave You - Trance',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Trance releases'
+    },
+    {
+      url: 'https://weraveyou.com/category/exclusive/feed/',
+      name: 'We Rave You - Exclusive',
+      website: 'https://weraveyou.com',
+      category: 'music',
+      description: 'Exclusive content'
+    },
+    {
+      url: 'https://soundplate.com/feed',
+      name: 'Soundplate',
+      website: 'https://soundplate.com',
+      category: 'music',
+      description: 'Electronic music playlists'
+    },
+    {
+      url: 'https://www.technoairlines.com/feed',
+      name: 'Techno Airlines',
+      website: 'https://www.technoairlines.com',
+      category: 'music',
+      description: 'Techno news and features'
     },
     {
       url: 'https://edmidentity.com/feed/',
@@ -85,46 +190,11 @@ class FeedService {
       description: 'EDM news and releases'
     },
     {
-      url: 'https://www.technoairlines.com/feed',
-      name: 'Techno Airlines',
-      website: 'https://www.technoairlines.com',
-      category: 'music',
-      description: 'Techno news and features'
-    },
-    {
-      url: 'https://www.nodoughmusic.com/feed/',
-      name: 'No Dough Music',
-      website: 'https://www.nodoughmusic.com',
-      category: 'music',
-      description: 'House music blog'
-    },
-    {
-      url: 'https://webradiohousemusic.blogspot.com/feeds/posts/default?alt=rss',
-      name: 'Web Radio House Music',
-      website: 'https://webradiohousemusic.blogspot.com',
-      category: 'music',
-      description: 'House music radio and news'
-    },
-    {
-      url: 'https://thetechnokittens.com/feed/?x=1',
-      name: 'The Techno Kittens',
-      website: 'https://thetechnokittens.com',
-      category: 'music',
-      description: 'Techno and house culture blog'
-    },
-    {
       url: 'https://5mag.net/category/news/feed/',
       name: '5 Magazine',
       website: 'https://5mag.net',
       category: 'music',
-      description: 'Chicago house music news'
-    },
-    {
-      url: 'https://acidted.wordpress.com/feed/',
-      name: 'Acid Ted',
-      website: 'https://acidted.wordpress.com',
-      category: 'music',
-      description: 'Electronic music reviews'
+      description: 'Chicago house news'
     },
     {
       url: 'https://www.deephouseamsterdam.com/feed/',
@@ -134,25 +204,11 @@ class FeedService {
       description: 'Deep house music news'
     },
     {
-      url: 'https://soundplate.com/feed/',
-      name: 'Soundplate',
-      website: 'https://soundplate.com',
-      category: 'music',
-      description: 'Electronic music playlists'
-    },
-    {
       url: 'https://feeds.feedburner.com/DeeperShadesOfHouse',
       name: 'Deeper Shades of House',
       website: 'https://www.deepershades.net',
       category: 'music',
       description: 'Deep house podcasts and news'
-    },
-    {
-      url: 'https://freshnewtracks.com/category/house/feed/',
-      name: 'Fresh New Tracks',
-      website: 'https://freshnewtracks.com',
-      category: 'music',
-      description: 'House music releases'
     },
 
     // Industry Category
@@ -176,6 +232,13 @@ class FeedService {
       website: 'https://native-instruments.com',
       category: 'industry',
       description: 'Music production software and hardware'
+    },
+    {
+      url: 'https://weraveyou.com/category/industry/feed/',
+      name: 'We Rave You - Industry',
+      website: 'https://weraveyou.com',
+      category: 'industry',
+      description: 'Industry news and analysis'
     },
 
     // Guides Category  
