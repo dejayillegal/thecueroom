@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { safeStorage } from "@/lib/safe-dom";
 import UniversalHeader from "@/components/layout/universal-header";
 import { Footer } from "@/components/layout/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +75,7 @@ export default function Profile() {
     },
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(['/api/auth/user'], updatedUser);
+      safeStorage.setItem('tcr-user', JSON.stringify(updatedUser));
       setIsEditing(false);
       toast({
         title: "Profile Updated",
