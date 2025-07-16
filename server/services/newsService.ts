@@ -3,6 +3,7 @@
 
 import Parser from 'rss-parser';
 import { storage } from '../storage';
+import type { RequestInit } from 'node-fetch';
 
 interface NewsSource {
   name: string;
@@ -98,6 +99,8 @@ class NewsService {
     { name: 'Producer Hive', url: 'https://producerhive.com/feed/', category: 'Production' },
     { name: 'LANDR Blog', url: 'https://blog.landr.com/feed/', category: 'Production' },
   ];
+  private activeSources: NewsSource[] = [];
+  private failedSources: Map<string, NodeJS.Timeout> = new Map();
 
   constructor() {
     this.parser = new Parser({
@@ -106,19 +109,27 @@ class NewsService {
         'User-Agent': 'TheCueRoom/1.0 (+https://thecueroom.com)'
       }
     });
+    this.activeSources = [...this.sources];
   }
 
   async fetchAllNews(): Promise<void> {
-    console.log(`Fetching news from ${this.sources.length} sources...`);
-    
-    const fetchPromises = this.sources.map(source =>
-      this.fetchFromSource(source).catch(error => {
-        console.error(`Failed to fetch from ${source.name}:`, (error as Error).message);
-        return [];
-      })
-    );
+    if (this.activeSources.length === 0) this.activeSources = [...this.sources];
+    console.log(`Fetching news from ${this.activeSources.length} sources...`);
 
-    const results = await Promise.allSettled(fetchPromises);
+    const CONCURRENCY = 5;
+    const results: PromiseSettledResult<any[]>[] = [];
+    for (let i = 0; i < this.activeSources.length; i += CONCURRENCY) {
+      const slice = this.activeSources.slice(i, i + CONCURRENCY);
+      const batch = await Promise.allSettled(
+        slice.map(source =>
+          this.fetchFromSource(source).catch(error => {
+            console.error(`Failed to fetch from ${source.name}:`, (error as Error).message);
+            return [];
+          })
+        )
+      );
+      results.push(...batch);
+    }
     
     let totalFetched = 0;
     let totalSaved = 0;
@@ -143,8 +154,17 @@ class NewsService {
 
   private async fetchFromSource(source: NewsSource): Promise<any[]> {
     try {
-      const feed = await this.parser.parseURL(source.url);
-      
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(source.url, { signal: controller.signal } as RequestInit);
+      clearTimeout(timeout);
+      if (!res.ok) {
+        this.scheduleRetry(source);
+        throw new Error(`Status ${res.status}`);
+      }
+      const text = await res.text();
+      const feed = await this.parser.parseString(text);
+
       return feed.items.slice(0, 10).map((item: RSSItem) => ({
         title: this.cleanText(item.title || ''),
         content: this.cleanText(item.contentSnippet || item.content || ''),
@@ -154,15 +174,26 @@ class NewsService {
         region: source.region,
         publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
         guid: item.guid || item.link || '',
-      })).filter(article => 
-        article.title && 
-        article.url && 
+      })).filter(article =>
+        article.title &&
+        article.url &&
         this.isRelevantContent(article.title, article.content)
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
+      this.scheduleRetry(source);
       throw new Error(`RSS fetch failed for ${source.name}: ${message}`);
     }
+  }
+
+  private scheduleRetry(source: NewsSource) {
+    if (this.failedSources.has(source.url)) return;
+    this.activeSources = this.activeSources.filter(s => s.url !== source.url);
+    const timer = setTimeout(() => {
+      this.failedSources.delete(source.url);
+      this.activeSources.push(source);
+    }, 10 * 60 * 1000);
+    this.failedSources.set(source.url, timer);
   }
 
   private isRelevantContent(title: string, content: string): boolean {

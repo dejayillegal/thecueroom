@@ -1337,6 +1337,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gig routes
+
+  app.post('/api/gigs/submit', requireAuth, async (req, res) => {
+    try {
+      const requestData = { ...req.body };
+      if (requestData.date) {
+        requestData.date = new Date(requestData.date);
+      }
+
+      const schema = insertGigSchema.extend({
+        genre: z.string(),
+        subGenre: z.string().optional(),
+      });
+      const parsed = schema.parse(requestData);
+
+      const location = (parsed.location || '').toLowerCase();
+      if (!location.includes('india') && !location.includes('bangalore')) {
+        return res.status(400).json({ message: 'Only Indian gigs allowed' });
+      }
+
+      if (!['techno', 'house'].includes(parsed.genre.toLowerCase())) {
+        return res.status(400).json({ message: 'Only Techno or House gigs allowed' });
+      }
+
+      if (parsed.imageUrl) {
+        if (!/\.(png|jpe?g)$/i.test(parsed.imageUrl)) {
+          return res.status(400).json({ message: 'Flyer must be png or jpg' });
+        }
+        try {
+          const head = await fetch(parsed.imageUrl, { method: 'HEAD' });
+          const size = parseInt(head.headers.get('content-length') || '0', 10);
+          if (size > 1_000_000) {
+            return res.status(400).json({ message: 'Flyer exceeds 1MB size limit' });
+          }
+        } catch {
+          return res.status(400).json({ message: 'Flyer URL not reachable' });
+        }
+      }
+
+      const { genre, subGenre, ...gigData } = parsed;
+      const gig = await storage.createGig(gigData);
+      res.json(gig);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid gig data', errors: error.errors });
+      }
+      console.error('Error creating gig:', error);
+      res.status(500).json({ message: 'Failed to create gig' });
+    }
+  });
+
   // Gig routes (admin only)
   app.post('/api/gigs', requireAuth, requireAdmin, async (req, res) => {
     try {
