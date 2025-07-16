@@ -242,7 +242,10 @@ class FeedService {
     // Create unique ID from title and source
     const title = item.title || '';
     const link = item.link || '';
-    return btoa(`${source}-${title}-${link}`).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+    const combined = `${source}-${title}-${link}`;
+    // Encode to base64 safely for UTF-8 strings
+    const encoded = btoa(unescape(encodeURIComponent(combined)));
+    return encoded.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
   }
 
   private extractTags(content: string, title: string): string[] {

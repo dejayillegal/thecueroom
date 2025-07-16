@@ -78,6 +78,8 @@ interface MainNavigationProps {
 export default function MainNavigation({ className }: MainNavigationProps) {
   const [location] = useLocation();
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const basePath = (import.meta.env.VITE_BASE_PATH || '/') as string;
+  const prefix = basePath === '/' ? '' : basePath.replace(/\/$/, '');
 
   // Determine active category based on current location
   const getActiveCategory = () => {
@@ -108,7 +110,7 @@ export default function MainNavigation({ className }: MainNavigationProps) {
           const isHovered = hoveredCategory === category.id;
 
           return (
-            <Link key={category.id} href={category.href}>
+            <Link key={category.id} href={`${prefix}${category.href}`}>
               <Button
                 variant={isActive ? "default" : "ghost"}
                 size="lg"
