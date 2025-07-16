@@ -139,18 +139,18 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
+                <DropdownMenuItem onClick={() => window.location.href = getBasePath() + '/profile'}>
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = '/settings'}>
+                <DropdownMenuItem onClick={() => window.location.href = getBasePath() + '/settings'}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 {user?.isAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => window.location.href = '/admin'} className="text-destructive">
+                    <DropdownMenuItem onClick={() => window.location.href = getBasePath() + '/admin'} className="text-destructive">
                       <Shield className="mr-2 h-4 w-4" />
                       Admin Panel
                     </DropdownMenuItem>

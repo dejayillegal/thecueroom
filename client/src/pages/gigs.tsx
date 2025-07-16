@@ -45,7 +45,7 @@ export default function Gigs() {
               Gigs
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Live events and gigs across India - powered by Resident Advisor
+              Live events and gigs across India
             </p>
           </div>
 

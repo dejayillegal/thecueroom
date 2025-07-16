@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { getBasePath } from "@/lib/router-config";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -263,7 +264,7 @@ export default function AdminSupportPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.location.href = '/admin'}
+              onClick={() => window.location.href = getBasePath() + '/admin'}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
