@@ -8,6 +8,7 @@ import TheCueRoomBot from "@/components/thecueroom-bot";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { AnimationProvider } from "@/contexts/AnimationContext";
 import Landing from "@/pages/landing";
+import LoadingScreen from "@/components/layout/loading-screen";
 import Home from "@/pages/home";
 import Community from "@/pages/community";
 import Admin from "@/pages/admin";
@@ -32,7 +33,7 @@ function Router() {
   // Create a component wrapper that handles authentication-based rendering
   const AuthenticatedRoute = ({ component: Component, fallback: Fallback = Landing }: { component: React.ComponentType, fallback?: React.ComponentType }) => {
     if (isLoading) {
-      return <Landing />; // Show landing during loading
+      return <LoadingScreen />; // Avoid landing flash during auth check
     }
     return isAuthenticated ? <Component /> : <Fallback />;
   };
