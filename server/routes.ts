@@ -2451,14 +2451,31 @@ Make it engaging and authentic to underground music culture. Respond with only a
 
         const xmlText = await response.text();
         const feed = await rssParser.parseString(xmlText);
-        const items = (feed.items || []).map((i: any) => ({
-          title: i.title?.trim() || '',
-          link: i.link || i.guid || '',
-          description: i.contentSnippet || i.content || '',
-          pubDate: i.pubDate || '',
-          author: i.creator || i.author || '',
-          image: i.enclosure?.url || ''
-        })).filter(item => item.title && item.link);
+
+        const extractImage = (item: any): string => {
+          const html = item['content:encoded'] || item.content || '';
+          const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+          return (
+            item.enclosure?.url ||
+            item['media:content']?.url ||
+            (Array.isArray(item['media:content']) ? item['media:content'][0]?.url : undefined) ||
+            item['media:thumbnail']?.url ||
+            item['itunes:image']?.href ||
+            (imgMatch ? imgMatch[1] : '') ||
+            ''
+          );
+        };
+
+        const items = (feed.items || [])
+          .map((i: any) => ({
+            title: i.title?.trim() || '',
+            link: i.link || i.guid || '',
+            description: i.contentSnippet || i.content || '',
+            pubDate: i.pubDate || '',
+            author: i.creator || i.author || '',
+            image: extractImage(i)
+          }))
+          .filter(item => item.title && item.link);
 
         res.json({
           items: items.slice(0, 50),
