@@ -751,6 +751,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(gigs)
+      .where(sql`LOWER(${gigs.location}) LIKE '%india%' OR LOWER(${gigs.location}) LIKE '%bangalore%'`)
       .orderBy(desc(gigs.date))
       .limit(limit)
       .offset(offset);
@@ -760,7 +761,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(gigs)
-      .where(and(eq(gigs.isActive, true), sql`${gigs.date} >= NOW()`))
+      .where(and(eq(gigs.isActive, true), sql`${gigs.date} >= NOW()`, sql`(LOWER(${gigs.location}) LIKE '%india%' OR LOWER(${gigs.location}) LIKE '%bangalore%')`))
       .orderBy(gigs.date);
   }
 
